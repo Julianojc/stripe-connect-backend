@@ -29,7 +29,7 @@ const stripeAccount = async (req, res) => {
       },
       business_profile: {
         mcc: '5815', // categoria default> outros produtos digitais
-        url: `${_profileURL}`
+        url: _profileURL
       },
       individual: {
           first_name: _name,
