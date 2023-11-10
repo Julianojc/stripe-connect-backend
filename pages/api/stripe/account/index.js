@@ -5,7 +5,7 @@ const stripeAccount = async (req, res) => {
   
   const { method } = req
 
-  if (method === "GET") {
+  if (method === "POST") {
 
     const _userID = req.body.userID;
     const _name = req.body.name;
@@ -21,9 +21,9 @@ const stripeAccount = async (req, res) => {
       type: "express",
       capabilities: {card_payments: {requested: true}, transfers: {requested: true}},
       business_type: 'individual',
-      business_profile: {
-        url: `${_profileURL}`
-      },
+      // business_profile: {
+      //   url: `${_profileURL}`
+      // },
       individual: {
           first_name: _name,
           last_name: _lastname,
@@ -59,12 +59,13 @@ const stripeAccount = async (req, res) => {
     console.log(id)
     const deleted = await stripe.accounts.del(id)
     res.status(200).json({ message: "account deleted successfully", deleted })
-  } else if (method === "POST") {
-    // Retrieve the Connected Account for the provided ID
-    // I know it shouldn't be a POST call. Don't judge :D I had a lot on my plate
-    const account = await stripe.accounts.retrieve(req.query.id)
-    res.status(200).json({ account })
-  }
+  } 
+  // else if (method === "POST") {
+  //   // Retrieve the Connected Account for the provided ID
+  //   // I know it shouldn't be a POST call. Don't judge :D I had a lot on my plate
+  //   const account = await stripe.accounts.retrieve(req.query.id)
+  //   res.status(200).json({ account })
+  // }
 }
 
 export default stripeAccount
