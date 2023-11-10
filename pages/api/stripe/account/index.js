@@ -23,8 +23,8 @@ const stripeAccount = async (req, res) => {
       business_type: 'individual',
       individual:{
         //email: _email,
-        first_name: _name,
-        last_name: _lastname,
+        //first_name: _name,
+        //last_name: _lastname,
         political_exposure: "none"
       },
       business_profile: {
