@@ -21,9 +21,16 @@ const stripeAccount = async (req, res) => {
       type: "express",
       capabilities: {card_payments: {requested: true}, transfers: {requested: true}},
       business_type: 'individual',
-      // business_profile: {
-      //   url: `${_profileURL}`
-      // },
+      individual:{
+        email: _email,
+        first_name: _name,
+        last_name: _lastname,
+        political_exposure: "none"
+      },
+      business_profile: {
+        mcc: '5815', // categoria default> outros produtos digitais
+        url: `${_profileURL}`
+      },
       individual: {
           first_name: _name,
           last_name: _lastname,
