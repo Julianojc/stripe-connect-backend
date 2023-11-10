@@ -22,7 +22,7 @@ const stripeAccount = async (req, res) => {
       capabilities: {card_payments: {requested: true}, transfers: {requested: true}},
       business_type: 'individual',
       individual:{
-        email: _email,
+        //email: _email,
         first_name: _name,
         last_name: _lastname,
         political_exposure: "none"
