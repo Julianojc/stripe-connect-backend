@@ -13,38 +13,53 @@ const stripeAccount = async (req, res) => {
     const _email = req.body.email;
     const _profileURL = req.body.profileURL
 
+    var stripeAccountID = null;
+
     // CREATE CONNECTED ACCOUNT
     const { mobile } = req.query
+
+    // check if exists ID in metadata
+    const customer = await stripe.customers.search({
+      query: `metadata["creator_id"]: ${_userID}`,
+    });
+
+    if(customer != null){
+      stripeAccountID = customer.data
+    }
+    else{
+      // ACCOUNT DEFAULT INFO
+      const account = await stripe.accounts.create({
+        type: "express",
+        capabilities: {card_payments: {requested: true}, transfers: {requested: true}},
+        business_type: 'individual',
+        individual:{
+          //email: _email,
+          //first_name: _name,
+          //last_name: _lastname,
+          political_exposure: "none"
+        },
+        business_profile: {
+          mcc: '5815', // categoria default> outros produtos digitais
+          //url: _profileURL
+        },
+        individual: {
+            first_name: _name,
+            last_name: _lastname,
+        },
+        metadata: {
+            'creator_id': _userID
+        }
+      })
+      var stripeAccountID = account.id;
+    }
     
-    // ACCOUNT DEFAULT INFO
-    const account = await stripe.accounts.create({
-      type: "express",
-      capabilities: {card_payments: {requested: true}, transfers: {requested: true}},
-      business_type: 'individual',
-      individual:{
-        //email: _email,
-        //first_name: _name,
-        //last_name: _lastname,
-        political_exposure: "none"
-      },
-      business_profile: {
-        mcc: '5815', // categoria default> outros produtos digitais
-        //url: _profileURL
-      },
-      individual: {
-          first_name: _name,
-          last_name: _lastname,
-      },
-      metadata: {
-          'creator_id': _userID
-      }
-    })
+      
 
     // PARAMS
     const params = stripe.AccountLinkCreateParams = {       
-      account: account.id,
-      refresh_url: `${host}/api/stripe/account/reauth?account_id=${account.id}`, //redirec. quando o link expira ou há erro
-      return_url: `${host}/register${mobile ? "-mobile" : ""}?account_id=${account.id }&result=success`, // return link on sucess
+      account: stripeAccountID == null ? account.id : stripeAccountID,
+      refresh_url: `${host}/api/stripe/account/reauth?account_id=${stripeAccountID}`, //redirec. quando o link expira ou há erro
+      return_url: `${host}/register${mobile ? "-mobile" : ""}?account_id=${stripeAccountID }&result=success`, // return link on sucess
       type: 'account_onboarding',
     }
 
@@ -58,7 +73,9 @@ const stripeAccount = async (req, res) => {
       // In case of request generated from the web app, redirect
       res.redirect(accountLinks.url)
     }
-  } else if (method === "DELETE") {
+  } 
+  
+  else if (method === "DELETE") {
     // Delete the Connected Account having provided ID
     const {
       query: { id },
