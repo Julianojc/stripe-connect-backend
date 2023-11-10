@@ -60,7 +60,7 @@ const stripeAccount = async (req, res) => {
 
     if (mobile) {
       // In case of request generated from the flutter app, return a json response
-      res.status(200).json({ success: true, url: accountLinks.url })
+      res.status(200).json({ success: true, url: accountLinks.url, accountID: _stripeUserID })
     } else {
       // In case of request generated from the web app, redirect
       res.redirect(accountLinks.url)
