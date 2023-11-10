@@ -2,21 +2,48 @@ const stripe = require("stripe")(process.env.STRIPE_API_SECRET)
 const host = process.env.NEXT_PUBLIC_HOST
 
 const stripeAccount = async (req, res) => {
+  
   const { method } = req
+
   if (method === "GET") {
+
+    const _userID = req.body.userID;
+    const _name = req.body.name;
+    const _lastname = req.body.lastname;
+    const _email = req.body.email;
+    const _profileURL = req.body.profileURL
+
     // CREATE CONNECTED ACCOUNT
     const { mobile } = req.query
+    
+    // ACCOUNT DEFAULT INFO
     const account = await stripe.accounts.create({
       type: "express",
+      capabilities: {card_payments: {requested: true}, transfers: {requested: true}},
+      business_type: 'individual',
+      business_profile: {
+        url: `${_profileURL}`
+      },
+      individual: {
+          first_name: _name,
+          last_name: _lastname,
+      },
+      metadata: {
+          'creator_id': _userID
+      }
     })
-    const accountLinks = await stripe.accountLinks.create({
+
+    // PARAMS
+    const params = stripe.AccountLinkCreateParams = {       
       account: account.id,
-      refresh_url: `${host}/api/stripe/account/reauth?account_id=${account.id}`,
-      return_url: `${host}/register${mobile ? "-mobile" : ""}?account_id=${
-        account.id
-      }&result=success`,
-      type: "account_onboarding",
-    })
+      refresh_url: `${host}/api/stripe/account/reauth?account_id=${account.id}`, //redirec. quando o link expira ou há erro
+      return_url: `${host}/register${mobile ? "-mobile" : ""}?account_id=${account.id }&result=success`, // return link on sucess
+      type: 'account_onboarding',
+    }
+
+    // CREATE WITH PARAMS
+    const accountLinks = await stripe.accountLinks.create(params)
+
     if (mobile) {
       // In case of request generated from the flutter app, return a json response
       res.status(200).json({ success: true, url: accountLinks.url })
