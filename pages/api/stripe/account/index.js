@@ -18,7 +18,7 @@ const stripeAccount = async (req, res) => {
     const { mobile } = req.query
 
    
-      if(_stripeUserID == null){
+      if(req.body.stripeUserID == null){
           // ACCOUNT DEFAULT INFO
           const account = await stripe.accounts.create({
             type: "express",
