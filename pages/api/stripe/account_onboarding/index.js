@@ -8,10 +8,11 @@ const stripeAccount = async (req, res) => {
   if (method === "POST") {
     try{
     
-      var _stripeUserID = req.body.stripeUserID;
+     var _stripeUserID = req.body.stripeUserID;
     const _userID = req.body.userID;
     const _name = req.body.name;
     const _lastname = req.body.lastname;
+    const _nickname = req.body.lastname;
     const _email = req.body.email;
     const _profileURL = req.body.profileURL
 
@@ -33,7 +34,7 @@ const stripeAccount = async (req, res) => {
             },
             business_profile: {
               mcc: '5815', // categoria default> outros produtos digitais
-              //url: _profileURL
+              //url: process.env.WEB_APP_URL/@`$nickname`
             },
             individual: {
                 first_name: _name,
