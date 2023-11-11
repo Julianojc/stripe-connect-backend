@@ -6,7 +6,7 @@ const stripeAccount = async (req, res) => {
   const { method } = req
 
   if (method === "POST") {
-
+    try{
     var _stripeUserID = req.body.StripeUserID;
     const _userID = req.body.userID;
     const _name = req.body.name;
@@ -71,6 +71,13 @@ const stripeAccount = async (req, res) => {
       res.redirect(accountLinks.url)
     }
   }
+  catch(e){
+    return res.status(400).send({
+      error:{ message: e?.message }
+    });
+  }
+  
+  }
   
   else if (method === "DELETE") {
     // Delete the Connected Account having provided ID
@@ -81,7 +88,8 @@ const stripeAccount = async (req, res) => {
     const deleted = await stripe.accounts.del(id)
     res.status(200).json({ message: "account deleted successfully", deleted })
   } 
-  // else if (method === "POST") {
+
+  // else if (method === "GET") {
   //   // Retrieve the Connected Account for the provided ID
   //   // I know it shouldn't be a POST call. Don't judge :D I had a lot on my plate
   //   const account = await stripe.accounts.retrieve(req.query.id)
