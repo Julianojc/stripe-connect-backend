@@ -42,40 +42,38 @@ const stripeAccount = async (req, res) => {
                 'creator_id': _userID
             }
           })
-
           _stripeUserID = account.id
       }
     
+      // PARAMS
+      const params = stripe.AccountLinkCreateParams = {       
+        account: _stripeUserID,
+        refresh_url: `${host}/api/stripe/account/reauth?account_id=${_stripeUserID}`, //redirec. quando o link expira ou há erro
+        return_url: `${host}/register${mobile ? "-mobile" : ""}?account_id=${_stripeUserID }&result=success`, // return link on sucess
+        type: 'account_onboarding',
+      }
 
-    // PARAMS
-    const params = stripe.AccountLinkCreateParams = {       
-      account: _stripeUserID,
-      refresh_url: `${host}/api/stripe/account/reauth?account_id=${_stripeUserID}`, //redirec. quando o link expira ou há erro
-      return_url: `${host}/register${mobile ? "-mobile" : ""}?account_id=${_stripeUserID }&result=success`, // return link on sucess
-      type: 'account_onboarding',
+      // CREATE WITH PARAMS
+      const accountLinks = await stripe.accountLinks.create(params)
+
+      if (mobile) {
+        // In case of request generated from the flutter app, return a json response
+        res.status(200).json({ 
+          success: true, 
+          url: accountLinks.url, 
+          accountID: _stripeUserID 
+        })
+        
+      } else {
+        // In case of request generated from the web app, redirect
+        res.redirect(accountLinks.url)
+      }
     }
-
-    // CREATE WITH PARAMS
-    const accountLinks = await stripe.accountLinks.create(params)
-
-    if (mobile) {
-      // In case of request generated from the flutter app, return a json response
-      res.status(200).json({ 
-        success: true, 
-        url: accountLinks.url, 
-        accountID: _stripeUserID 
-      })
-      
-    } else {
-      // In case of request generated from the web app, redirect
-      res.redirect(accountLinks.url)
+    catch(e){
+      return res.status(400).send({
+        error:{ message: e?.message }
+      });
     }
-  }
-  catch(e){
-    return res.status(400).send({
-      error:{ message: e?.message }
-    });
-  }
   
   }
   
