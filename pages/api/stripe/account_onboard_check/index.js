@@ -9,7 +9,7 @@ const stripeOnboardingCheck = async (req, res) => {
             // verify boolean > details_submitted < is true
             const response = await stripe.accounts.retrieve( req.body.accountID );
 
-            res.status(200).json({
+            return res.status(200).json({
                 isActive: response.details_submitted
             })
         }
@@ -21,3 +21,5 @@ const stripeOnboardingCheck = async (req, res) => {
        
     }
 }
+
+export default stripeOnboardingCheck
