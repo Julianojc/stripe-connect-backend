@@ -7,7 +7,7 @@ const stripeAccount = async (req, res) => {
 
   if (method === "POST") {
     try{
-    var _stripeUserID = req.body.StripeUserID;
+    var _stripeUserID = req.body.stripeUserID;
     const _userID = req.body.userID;
     const _name = req.body.name;
     const _lastname = req.body.lastname;
