@@ -7,7 +7,7 @@ const stripeSubscriptionCreate = async (req, res) => {
   
     if (method === "POST") {
         try{
-            const customer = await stripe.subscriptions.create({
+            const subscription = await stripe.subscriptions.create({
                 customer: req.body.customerID,
                 items: [
                   {
@@ -24,8 +24,7 @@ const stripeSubscriptionCreate = async (req, res) => {
             });
 
             res.status(200).json({ 
-                success: true, 
-                customer: customer
+                data: subscription, 
             })
         }
         catch(e){
