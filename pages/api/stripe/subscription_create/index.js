@@ -7,8 +7,9 @@ const stripeSubscriptionCreate = async (req, res) => {
   
     if (method === "POST") {
         try{
-            const subscription = await stripe.subscriptions.create({
+            const data = await stripe.subscriptions.create({
                 customer: req.body.customerID,
+                application_fee_percent: process.env.STRIPE_APP_FEE, //.env variable
                 items: [
                   {
                     price: req.body.price,
@@ -24,7 +25,7 @@ const stripeSubscriptionCreate = async (req, res) => {
             });
 
             res.status(200).json({ 
-                data: subscription, 
+                data: data, 
             })
         }
         catch(e){
