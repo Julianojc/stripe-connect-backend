@@ -44,7 +44,8 @@ const stripeAccount = async (req, res) => {
                 'creator_id': _userID
             }
           })
-          _stripeUserID = account.id
+
+          _stripeUserID = account.id //set variable
       }
     
       // PARAMS
