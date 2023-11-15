@@ -1,5 +1,5 @@
-const stripe = require("stripe")(process.env.STRIPE_API_SECRET)
-const host = process.env.NEXT_PUBLIC_HOST
+
+const stripe = require("stripe")( process.env.STRIPE_API_SECRET ) //STRIPE SECRET
 
 const stripeCustomerAccount = async (req, res) => {
   
@@ -8,6 +8,7 @@ const stripeCustomerAccount = async (req, res) => {
     if (method === "POST") {
         try{
             const customer = await stripe.customers.create({
+                email: req.body.email,
                 description: 'Usuário Padrão',
                 metadata:{
                     "user_id": req.body.userID
