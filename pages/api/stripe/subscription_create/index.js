@@ -1,5 +1,6 @@
-const stripe = require("stripe")(process.env.STRIPE_API_SECRET)
-const host = process.env.NEXT_PUBLIC_HOST
+
+
+const stripe = require("stripe")( process.env.STRIPE_API_SECRET )
 
 const stripeSubscriptionCreate = async (req, res) => {
   
@@ -30,6 +31,7 @@ const stripeSubscriptionCreate = async (req, res) => {
             // RETORNA
             res.status(200).json({ 
                 subscriptionId: subscription.id,
+                object: "subscription",
                 clientSecret: subscription.latest_invoice.payment_intent.client_secret, 
             })
         }
@@ -42,4 +44,4 @@ const stripeSubscriptionCreate = async (req, res) => {
     }
 }
 
-export default stripeCustomerAccount
+export default stripeSubscriptionCreate
