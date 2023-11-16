@@ -6,7 +6,7 @@ const stripeSubscriptionCreate = async (req, res) => {
   
     const { method } = req
     const _customerID = req.body.customerID;
-    const _connectedAccountID = req.body.accountID;
+    const _connectedAccountID = req.body.accConnectID;
     const _priceID= req.body.priceID;
   
     if (method === "POST") {
