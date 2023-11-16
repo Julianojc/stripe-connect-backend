@@ -1,6 +1,6 @@
 
 
-const stripe = require("stripe")( process.env.NEXT_PUBLIC_STRIPE_API_PUBLIC )
+const stripe = require("stripe")( process.env.STRIPE_API_SECRET )
 
 const stripeSubscriptionCreate = async (req, res) => {
   
