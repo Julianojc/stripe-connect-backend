@@ -12,18 +12,36 @@ const stripeSubscriptionCreate = async (req, res) => {
     if (method === "POST") {
         try{
 
+            // const params = {
+                
+            //     customer: `${_customerID}`,
+            //     application_fee_percent: process.env.STRIPE_APP_FEE, //.env variable
+            //     items: [{
+            //         price: `${_priceID}`,
+            //     }],
+            //     //payment_behavior: 'default_incomplete',
+            //     payment_settings: { save_default_payment_method: 'on_subscription' },
+            //     expand: ['latest_invoice.payment_intent'],
+            //     transfer_data: {
+            //       destination: `${_connectedAccountID}`, // conta connect do criador
+            //     },
+            //     metadata:{
+            //         "creator_id": req.body.userID
+            //     }
+            // }
+
             const params = {
                 
-                customer: `${_customerID}`,
+                customer: "cus_P0pOeBs5H6CQ4D",
                 application_fee_percent: process.env.STRIPE_APP_FEE, //.env variable
                 items: [{
-                    price: `${_priceID}`,
+                    price: "price_1OCnak3ZaTYZG0nnQmld8Br7",
                 }],
                 //payment_behavior: 'default_incomplete',
                 payment_settings: { save_default_payment_method: 'on_subscription' },
                 expand: ['latest_invoice.payment_intent'],
                 transfer_data: {
-                  destination: `${_connectedAccountID}`, // conta connect do criador
+                  destination: "acct_1OB6LP3ZaTYZG0nn", // conta connect do criador
                 },
                 metadata:{
                     "creator_id": req.body.userID
