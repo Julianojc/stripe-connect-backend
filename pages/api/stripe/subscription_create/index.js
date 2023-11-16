@@ -15,7 +15,7 @@ const stripeSubscriptionCreate = async (req, res) => {
             const params = {
                 
                 customer: `${_customerID}`,
-                //application_fee_percent: process.env.STRIPE_APP_FEE *100, //.env variable
+                application_fee_percent: process.env.STRIPE_APP_FEE *100, //.env variable
                 items: [{
                     price: `${_priceID}`,
                 }],
@@ -24,7 +24,6 @@ const stripeSubscriptionCreate = async (req, res) => {
                 expand: ['latest_invoice.payment_intent'],
                 transfer_data: {
                   destination: `${_connectedAccountID}`, // conta connect do criador
-                  amount_percent: 95
                 },
                 metadata:{
                     "creator_id": req.body.userID
