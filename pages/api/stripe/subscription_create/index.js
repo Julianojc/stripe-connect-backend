@@ -5,28 +5,33 @@ const stripe = require("stripe")( process.env.STRIPE_API_SECRET )
 const stripeSubscriptionCreate = async (req, res) => {
   
     const { method } = req
+    const _customerID = req.body.customerID;
+    const _connectedAccountID = req.body.accountID;
+    const _priceID= req.body.priceID;
   
     if (method === "POST") {
         try{
-            
-            const subscription = await stripe.subscriptions.create({
+
+            const params = {
                 
-                customer: req.body.customerID,
-                application_fee_percent: process.env.STRIPE_APP_FEE *100, //.env variable
+                customer: `${_customerID}`,
+                //application_fee_percent: process.env.STRIPE_APP_FEE *100, //.env variable
                 items: [{
-                    price: req.body.priceID,
+                    price: `${_priceID}`,
                 }],
                 //payment_behavior: 'default_incomplete',
                 payment_settings: { save_default_payment_method: 'on_subscription' },
                 expand: ['latest_invoice.payment_intent'],
                 transfer_data: {
-                  destination: req.body.accConnectID, // conta connect do criador
+                  destination: `${_connectedAccountID}`, // conta connect do criador
+                  amount_percent: 95
                 },
                 metadata:{
                     "creator_id": req.body.userID
                 }
+            }
             
-            });
+            const subscription = await stripe.subscriptions.create( params );
 
             // RETORNA
             res.status(200).json({ 
