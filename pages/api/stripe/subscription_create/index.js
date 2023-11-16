@@ -15,7 +15,7 @@ const stripeSubscriptionCreate = async (req, res) => {
             const params = {
                 
                 customer: `${_customerID}`,
-                application_fee_percent: process.env.STRIPE_APP_FEE *100, //.env variable
+                application_fee_percent: process.env.STRIPE_APP_FEE, //.env variable
                 items: [{
                     price: `${_priceID}`,
                 }],
