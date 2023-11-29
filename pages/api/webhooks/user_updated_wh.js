@@ -37,6 +37,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), (request, response
   // Return a 200 response to acknowledge receipt of the event
   response.send({
     accountUpdated: accountUpdated['id'],
+    metadata: accountUpdated['metadata'],
     userId: accountUpdated['metadata']['user_id']
   });
 });
