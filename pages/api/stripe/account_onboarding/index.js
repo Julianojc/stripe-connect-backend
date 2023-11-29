@@ -41,7 +41,7 @@ const stripeAccount = async (req, res) => {
                 last_name: _lastname,
             },
             metadata: {
-                'creator_id': _userID
+                'user_id': _userID
             }
           })
 
