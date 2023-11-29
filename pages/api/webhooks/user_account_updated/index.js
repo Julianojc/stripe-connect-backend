@@ -31,6 +31,7 @@ const accountUpdatedWebhook = async (req, res) => {
   if (req.method !== "POST") {
     return
   }
+  
   const body = await buffer(req) //ou webhookPayloadParser(req)
   const sig = req.headers["stripe-signature"]
 
@@ -53,15 +54,19 @@ const accountUpdatedWebhook = async (req, res) => {
         // SEND GRAPHQL MUTATION  
         //console.log(`user atualizado > ${accountUpdated['metadata']['user_id'] }` ) //get user ID
       }
+      // Return a 200 response to acknowledge receipt of the event
+      return response.status(200).send({
+        accountUpdated: accountUpdated['id'],
+        metadata: accountUpdated['metadata'],
+        userId: accountUpdated['metadata']['user_id']
+      });
+  }
+  else {
+    return res.status(400).send(`Webhook Error`)
   }
 
 
-  // Return a 200 response to acknowledge receipt of the event
-  response.json({
-    accountUpdated: accountUpdated['id'],
-    metadata: accountUpdated['metadata'],
-    userId: accountUpdated['metadata']['user_id']
-  });
+ 
 
 }
 
