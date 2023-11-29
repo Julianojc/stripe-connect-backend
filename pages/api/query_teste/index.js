@@ -9,7 +9,7 @@ export default async function handler(req, res){
     return
   }
 
- let obj = await client.query({
+ var obj = await client.query({
     query: gql`
     query MyQuery {
         user {
