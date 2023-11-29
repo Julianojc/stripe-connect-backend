@@ -25,7 +25,7 @@ async function buffer( readable ) {
 //     })
 //   })
 
-const accountUpdatedWebhook = async (req, res) => {
+export default async function handler(req, res){
   
   const webhook_secret = process.env.STRIPE_WEBHOOK_ACCOUNTS_SECRET
   
@@ -67,8 +67,5 @@ const accountUpdatedWebhook = async (req, res) => {
   }
 
 
- 
-
 }
 
-export default accountUpdatedWebhook
