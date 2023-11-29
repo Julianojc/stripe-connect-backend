@@ -6,24 +6,24 @@ export const config = {
   },
 }
 
-async function buffer( readable ) {
-    const chunks = [];
-    for await (const chunk of readable){
-      chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
-    }
-    return Buffer.concat(chunks)
-}
+// async function buffer( readable ) {
+//     const chunks = [];
+//     for await (const chunk of readable){
+//       chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
+//     }
+//     return Buffer.concat(chunks)
+// }
 
-// const webhookPayloadParser = (req) =>
-//   new Promise((resolve) => {
-//     let data = ""
-//     req.on("data", (chunk) => {
-//       data += chunk
-//     })
-//     req.on("end", () => {
-//       resolve(Buffer.from(data).toString())
-//     })
-//   })
+const webhookPayloadParser = (req) =>
+  new Promise((resolve) => {
+    let data = ""
+    req.on("data", (chunk) => {
+      data += chunk
+    })
+    req.on("end", () => {
+      resolve(Buffer.from(data).toString())
+    })
+  })
 
 export default async function handler(req, res){
   
@@ -35,7 +35,7 @@ export default async function handler(req, res){
     return
   }
   
-  const body = await buffer(req) //ou webhookPayloadParser(req)
+  const body = await webhookPayloadParser(req) //webhookPayloadParser(req) ou buffer(req)
   const sig = req.headers["stripe-signature"]
 
   let event
