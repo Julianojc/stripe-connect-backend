@@ -4,6 +4,8 @@ import { gql, useQuery } from '@apollo/client';
 
 
 export default async function handler(req, res){
+
+    console.log('call')
     
 //   if (req.method !== "GET") {
 //     return
