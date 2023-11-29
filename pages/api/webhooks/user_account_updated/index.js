@@ -1,4 +1,18 @@
+
+import { client } from "../../client_config/index.js"
+import { gql, useMutation } from '@apollo/client';
 const stripe = require('stripe')( process.env.STRIPE_API_SECRET );
+
+const UPDATE_USER_MUTATION = gql`
+  mutation UpdateUser($id: String!, $role: user_roles_enum, $stripe_connect_id: String!) {
+    update_user_by_pk(
+      pk_columns: {id: $id}, 
+      _set: {role: $role, stripe_connect_id: $stripe_connect_id}) 
+      {
+        id
+      }
+  }
+`;
 
 export const config = {
   api: {
@@ -52,12 +66,18 @@ export default async function handler(req, res){
   if (event.type === "account.updated") { 
       
       const accountUpdated = event.data.object;
-      console.log("Checkout Session completed successfully")
+      console.log("User updated completed successfully")
       console.log(`user atualizado > ${accountUpdated}` ) //data
       
       if(accountUpdated.charges_enabled && accountUpdated.details_submitted){  
-        // SEND GRAPHQL MUTATION  
-        //console.log(`user atualizado > ${accountUpdated['metadata']['user_id'] }` ) //get user ID
+          // SEND GRAPHQL MUTATION  
+          const [UpdateUser] = useMutation(UPDATE_USER_MUTATION, {
+            variables: {
+              id: accountUpdated.metadata.user_id,
+              role: 'CREATOR',
+              stripe_connect_id: accountUpdated.id
+            },
+          });
       }
 
       // Return a 200 response to acknowledge receipt of the event
