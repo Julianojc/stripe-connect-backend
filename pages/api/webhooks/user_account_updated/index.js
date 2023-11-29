@@ -1,46 +1,68 @@
 const stripe = require('stripe')( process.env.STRIPE_API_SECRET );
-const express = require('express');
-const app = express();
 
-// This is your Stripe CLI webhook secret for testing your endpoint locally.
-const endpointSecret = "whsec_G77lf7B4H0p3ZsGzf1A84K6NlmzN8ziJ"; //  "whsec_XPyf4AIJk8fmZgL0Ge9X9iki8u5Ct0Dq"; < PROD
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}
 
-app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
-  const sig = request.headers['stripe-signature'];
+async function buffer( readable ) {
+    const chunks = [];
+    for await (const chunk of readable){
+      chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
+    }
+    return Buffer.concat(chunks)
+}
 
-  let event;
+// const webhookPayloadParser = (req) =>
+//   new Promise((resolve) => {
+//     let data = ""
+//     req.on("data", (chunk) => {
+//       data += chunk
+//     })
+//     req.on("end", () => {
+//       resolve(Buffer.from(data).toString())
+//     })
+//   })
 
+const accountUpdatedWebhook = async (req, res) => {
+  const webhook_secret = process.env.STRIPE_WEBHOOK_SECRET
+  
+  if (req.method !== "POST") {
+    return
+  }
+  const body = await buffer(req) //ou webhookPayloadParser(req)
+  const sig = req.headers["stripe-signature"]
+
+  let event
+
+  // Verify webhook signature and extract the event.
+  // See https://stripe.com/docs/webhooks/signatures for more information.
   try {
-    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    event = stripe.webhooks.constructEvent(body, sig, webhook_secret)
   } catch (err) {
-    response.status(400).send(`Webhook Error: ${err.message}`);
-    return;
+    console.log(err)
+    return res.status(400).send(`Webhook Error: ${err.message}`)
   }
 
-  // Handle the event
-  switch (event.type) {
-    case 'account.updated':{
+  if (event.type === "account.updated") { 
       const accountUpdated = event.data.object;
-        // Then define and call a function to handle the event account.updated
-        console.log(`user atualizado > ${accountUpdated['metadata']['user_id'] }` ) //get user ID
-        if(accountUpdated['charges_enabled'] && accountUpdated['details_submitted']){
-            
-            console.log(`user atualizado > ${accountUpdated['metadata']['user_id'] }` ) //get user ID
-        
-        }
+      console.log("Checkout Session completed successfully")
+      console.log(`user atualizado > ${accountUpdated}` ) //data
+      if(accountUpdated['charges_enabled'] && accountUpdated['details_submitted']){  
+        // SEND GRAPHQL MUTATION  
+        //console.log(`user atualizado > ${accountUpdated['metadata']['user_id'] }` ) //get user ID
       }
-      break;
-    // ... handle other event types
-    default:
-      console.log(`Unhandled event type ${event.type}`);
   }
+
 
   // Return a 200 response to acknowledge receipt of the event
-  response.send({
+  response.json({
     accountUpdated: accountUpdated['id'],
     metadata: accountUpdated['metadata'],
     userId: accountUpdated['metadata']['user_id']
   });
-});
 
-app.listen(4242, () => console.log('Running on port 4242'));
+}
+
+export default accountUpdatedWebhook

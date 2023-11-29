@@ -2,6 +2,7 @@
  * Not using Webhooks as of now. Maybe something for a later tutorial.
  */
 const stripe = require("stripe")(process.env.STRIPE_API_SECRET)
+
 export const config = {
   api: {
     bodyParser: false,
@@ -20,7 +21,7 @@ const webhookPayloadParser = (req) =>
   })
 
 const checkoutSessionWebhook = async (req, res) => {
-  const webhook_secret = process.env.STRIPE_WH_SECRET
+  const webhook_secret = process.env.STRIPE_WEBHOOK_SECRET
   if (req.method !== "POST") {
     return
   }
