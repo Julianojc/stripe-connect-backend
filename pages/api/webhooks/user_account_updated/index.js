@@ -50,18 +50,21 @@ export default async function handler(req, res){
   }
 
   if (event.type === "account.updated") { 
+      
       const accountUpdated = event.data.object;
       console.log("Checkout Session completed successfully")
       console.log(`user atualizado > ${accountUpdated}` ) //data
-      if(accountUpdated['charges_enabled'] && accountUpdated['details_submitted']){  
+      
+      if(accountUpdated.charges_enabled && accountUpdated.details_submitted){  
         // SEND GRAPHQL MUTATION  
         //console.log(`user atualizado > ${accountUpdated['metadata']['user_id'] }` ) //get user ID
       }
+
       // Return a 200 response to acknowledge receipt of the event
       return response.status(200).send({
-        accountUpdated: accountUpdated['id'],
-        metadata: accountUpdated['metadata'],
-        userId: accountUpdated['metadata']['user_id']
+        accountUpdated: accountUpdated.id,
+        metadata: accountUpdated.metadata,
+        userId: accountUpdated.metadata.user_id
       });
   }
   else {
