@@ -5,9 +5,9 @@ import { gql, useQuery } from '@apollo/client';
 
 export default async function handler(req, res){
     
-  if (req.method !== "GET") {
-    return
-  }
+//   if (req.method !== "GET") {
+//     return
+//   }
 
  var obj = await client.query({
     query: gql`
@@ -17,6 +17,8 @@ export default async function handler(req, res){
         }
     }`
  })
+
+ console.log(obj)
 
  if(res != null ){
     return res.status(200).json({
