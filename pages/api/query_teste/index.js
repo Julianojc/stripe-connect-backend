@@ -1,5 +1,5 @@
 
-import { client } from "../../client_config/index.js"
+import { client } from "../client_config"
 import { gql, useQuery } from '@apollo/client';
 
 
