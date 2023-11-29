@@ -22,6 +22,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), (request, response
     case 'account.updated':{
       const accountUpdated = event.data.object;
         // Then define and call a function to handle the event account.updated
+        console.log(`user atualizado > ${accountUpdated['metadata']['user_id'] }` ) //get user ID
         if(accountUpdated['charges_enabled'] && accountUpdated['details_submitted']){
             
             console.log(`user atualizado > ${accountUpdated['metadata']['user_id'] }` ) //get user ID
