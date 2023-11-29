@@ -27,6 +27,8 @@ async function buffer( readable ) {
 
 export default async function handler(req, res){
   
+  console.log('webhook accountUpdate Called...')
+
   const webhook_secret = process.env.STRIPE_WEBHOOK_ACCOUNTS_SECRET
   
   if (req.method !== "POST") {
