@@ -26,7 +26,8 @@ async function buffer( readable ) {
 //   })
 
 const accountUpdatedWebhook = async (req, res) => {
-  const webhook_secret = process.env.STRIPE_WEBHOOK_SECRET
+  
+  const webhook_secret = process.env.STRIPE_WEBHOOK_ACCOUNTS_SECRET
   
   if (req.method !== "POST") {
     return
