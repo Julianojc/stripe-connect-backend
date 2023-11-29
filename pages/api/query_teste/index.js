@@ -2,14 +2,6 @@
 import { client } from "../../client_config/index.js"
 import { gql, useQuery } from '@apollo/client';
 
-const QUERY_USERS = gql`
-query MyQuery {
-    user {
-      id
-    }
-  }
-  
-`;
 
 export default async function handler(req, res){
     
@@ -17,14 +9,18 @@ export default async function handler(req, res){
     return
   }
 
- const res = await client
-    .query({
-        query: QUERY_USERS
+ let obj = await client.query({
+    query: gql`
+    query MyQuery {
+        user {
+          id
+        }
+    }`
  })
 
  if(res != null ){
-    return response.status(200).json({
-        data: res
+    return res.status(200).json({
+        data: obj
     });
  }
  else {
