@@ -21,7 +21,7 @@ Code for the Flutter Stripe Backend project used in the tutorial "Flutter Market
 The repository has an `.env.example` file that shows the necessary variables for the tutorial. Create a new file in the project named `.env.local` and fill the values accordingly based on your business requirements. Here is an example configuration:
 
 ```
-STRIPE_API_SECRET=sk_test_asdkjqwklejqwklejkasljdkljasdklj
+NEXT_STRIPE_API_SECRET=sk_test_asdkjqwklejqwklejkasljdkljasdklj
 NEXT_PUBLIC_STRIPE_API_PUBLIC=pk_test_asldksalaksdjjkasdhjaksdhjkhasd
 NEXT_PUBLIC_APP_SCHEME=pandagums
 NEXT_PUBLIC_HOST=http://localhost:3000

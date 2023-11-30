@@ -1,5 +1,5 @@
 
-const stripe = require("stripe")( process.env.STRIPE_API_SECRET ) //STRIPE SECRET
+const stripe = require("stripe")( process.env.NEXT_STRIPE_API_SECRET ) //STRIPE SECRET
 
 const stripeCustomerAccount = async (req, res) => {
   

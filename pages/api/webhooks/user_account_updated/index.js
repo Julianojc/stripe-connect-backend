@@ -2,8 +2,8 @@ import { client } from "../../client_config/index.js"
 import { gql } from '@apollo/client';
 import { buffer } from 'micro';
 
-const stripe = require('stripe')( process.env.STRIPE_API_SECRET, { apiVersion: null } );
-const webhook_secret = "whsec_23a81737130d622b6125d20841fd7ee9314f480048565b8e8c371564d398e6d6"//process.env.STRIPE_WEBHOOK_ACCOUNTS_SECRET
+const stripe = require('stripe')( process.env.NEXT_STRIPE_API_SECRET, { apiVersion: null } );
+const webhook_secret = process.env.STRIPE_WEBHOOK_ACCOUNTS_SECRET
 
 export const config = {
   api: {

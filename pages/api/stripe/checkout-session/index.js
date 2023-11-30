@@ -1,4 +1,4 @@
-const stripe = require("stripe")(process.env.STRIPE_API_SECRET)
+const stripe = require("stripe")(process.env.NEXT_STRIPE_API_SECRET)
 const host = process.env.NEXT_PUBLIC_HOST
 
 /**

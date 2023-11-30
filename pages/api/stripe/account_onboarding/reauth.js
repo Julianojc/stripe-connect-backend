@@ -6,7 +6,7 @@
  * - The account has been rejected
  * Read more at https://stripe.com/docs/connect/standard-accounts#refresh_url
  */
-const stripe = require("stripe")(process.env.STRIPE_API_SECRET)
+const stripe = require("stripe")(process.env.NEXT_STRIPE_API_SECRET)
 const host = process.env.NEXT_PUBLIC_HOST
 
 const stripeReAuth = async (req, res) => {
