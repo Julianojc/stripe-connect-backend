@@ -32,67 +32,70 @@ const webhookPayloadParser = (req) =>
 export default async function handler(req, res){
   
   console.log('webhook accountUpdate Called...')
+  return res.status(200).json({
+    data: 'teste'
+  })
 
-  const webhook_secret = process.env.STRIPE_WEBHOOK_ACCOUNTS_SECRET
+  // const webhook_secret = process.env.STRIPE_WEBHOOK_ACCOUNTS_SECRET
   
-  if (req.method !== "POST") {
-    return
-  }
+  // if (req.method !== "POST") {
+  //   return
+  // }
   
-  const body = await webhookPayloadParser(req) //webhookPayloadParser(req) ou buffer(req)
-  const sig = req.headers["stripe-signature"]
+  // const body = await webhookPayloadParser(req) //webhookPayloadParser(req) ou buffer(req)
+  // const sig = req.headers["stripe-signature"]
 
-  let event
+  // let event
 
-  // Verify webhook signature and extract the event.
-  // See https://stripe.com/docs/webhooks/signatures for more information.
-  try {
-    event = stripe.webhooks.constructEvent(body, sig, webhook_secret)
-  } catch (err) {
-    console.log(err)
-    return res.status(400).send(`Webhook Error: ${err.message}`)
-  }
+  // // Verify webhook signature and extract the event.
+  // // See https://stripe.com/docs/webhooks/signatures for more information.
+  // try {
+  //   event = stripe.webhooks.constructEvent(body, sig, webhook_secret)
+  // } catch (err) {
+  //   console.log(err)
+  //   return res.status(400).send(`Webhook Error: ${err.message}`)
+  // }
 
-  if (event.type === "account.updated") { 
+  // if (event.type === "account.updated") { 
       
-      const accountUpdated = event.data.object;
-      console.log("User updated completed successfully")
-      console.log(`user atualizado > ${accountUpdated}` ) //data
+  //     const accountUpdated = event.data.object;
+  //     console.log("User updated completed successfully")
+  //     console.log(`user atualizado > ${accountUpdated}` ) //data
       
-      if(accountUpdated.charges_enabled && accountUpdated.details_submitted){  
-            // SEND GRAPHQL MUTATION  
-            var obj = await client.mutate({
-              mutation: gql`
-              mutation UpdateUser($id: String!, $role: user_roles_enum, $stripe_connect_id: String!) {
-                update_user_by_pk(
-                  pk_columns: {id: $id}, 
-                  _set: {role: $role, stripe_connect_id: $stripe_connect_id}) 
-                  {
-                    id
-                  }
-              }`,
-              variables:{
-                id: accountUpdated.metadata.user_id,
-                role: "CREATOR",
-                stripe_connect_id: accountUpdated.id
-              }
-          })
-          if(obj != null ){
-            // Return a 200 response to acknowledge receipt of the event
-            return res.status(200).json({
-              accountUpdated: accountUpdated.id,
-              metadata: accountUpdated.metadata,
-              userId: accountUpdated.metadata.user_id
-            })
-         }
-         else{
-          return res.status(400).send(`Webhook Error`)
-         }
-      }
-  }
-  else {
-    return res.status(400).send(`Webhook Error`)
-  }
+  //     if(accountUpdated.charges_enabled && accountUpdated.details_submitted){  
+  //           // SEND GRAPHQL MUTATION  
+  //           var obj = await client.mutate({
+  //             mutation: gql`
+  //             mutation UpdateUser($id: String!, $role: user_roles_enum, $stripe_connect_id: String!) {
+  //               update_user_by_pk(
+  //                 pk_columns: {id: $id}, 
+  //                 _set: {role: $role, stripe_connect_id: $stripe_connect_id}) 
+  //                 {
+  //                   id
+  //                 }
+  //             }`,
+  //             variables:{
+  //               id: accountUpdated.metadata.user_id,
+  //               role: "CREATOR",
+  //               stripe_connect_id: accountUpdated.id
+  //             }
+  //         })
+  //         if(obj != null ){
+  //           // Return a 200 response to acknowledge receipt of the event
+  //           return res.status(200).json({
+  //             accountUpdated: accountUpdated.id,
+  //             metadata: accountUpdated.metadata,
+  //             userId: accountUpdated.metadata.user_id
+  //           })
+  //        }
+  //        else{
+  //         return res.status(400).send(`Webhook Error`)
+  //        }
+  //     }
+  // }
+  // else {
+  //   return res.status(400).send(`Webhook Error`)
+  // }
 
 
 }
