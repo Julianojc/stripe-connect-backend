@@ -54,7 +54,7 @@ export default function Customer() {
     if (!accountId) {
       return
     }
-    let url = `${host}/api/stripe/checkout-session`
+    let url = `${host}/api/stripe/checkout_session`
     url += `?account_id=${accountId}&amount=${product.amount}&title=${product.title}`
     url += `&currency=${product.currency}&quantity=1`
     const response = await fetch(url)
