@@ -37,7 +37,7 @@ export default async function handler(req, res){
         //console.log("User updated completed successfully")
         //console.log(`user atualizado > ${accountUpdated.id}` ) //data
         // SEND GRAPHQL MUTATION  
-        var obj = await client.mutate({
+        var data = await client.mutate({
           mutation: gql`
           mutation UpdateUser($id: String!, $role: user_roles_enum, $stripe_connect_id: String!) {
             update_user_by_pk(
@@ -53,7 +53,7 @@ export default async function handler(req, res){
             stripe_connect_id: accountUpdated.id
           }
       })
-      if(obj != null ){
+      if(data != null ){
         // Return a 200 response to acknowledge receipt of the event
         return res.status(200).json({
           accountUpdated: accountUpdated.id,
