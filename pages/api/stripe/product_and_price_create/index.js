@@ -1,3 +1,4 @@
+import { client } from "../../client_config/index.js"
 
 const stripe = require("stripe")( process.env.NEXT_STRIPE_API_SECRET ) //STRIPE SECRET
 
@@ -17,20 +18,25 @@ export default async function stripeProductAndPriceCreate (req, res) {
                     name: req.body.title,
                     active: true,
                     metadata:{
-                        "user_id": req.body.userId
+                        "user_id": req.body.user_id
                     }
                 },
                 metadata:{
-                    "user_id": req.body.userId
+                    "user_id": req.body.user_id
                 }
             });
 
-            // return
-            return res.status(200).json({ 
+            if(data != null){
+               // return
+               return res.status(200).json({ 
                 success: true, 
                 priceId: data.id,
                 productId: data.product 
             })
+               
+            }
+
+            
         }
         catch(e){
             return res.status(400).send({
@@ -39,3 +45,5 @@ export default async function stripeProductAndPriceCreate (req, res) {
         }
     }
 }
+
+
