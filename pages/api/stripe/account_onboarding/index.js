@@ -1,9 +1,13 @@
 const stripe = require("stripe")(process.env.NEXT_STRIPE_API_SECRET)
 const host = process.env.NEXT_PUBLIC_HOST
 
-const stripeAccount = async (req, res) => {
+export default async function stripeAccount (req, res) {
   
   const { method } = req
+
+  if(method != "POST"){
+    return res.status(500);
+  }
 
   if (method === "POST") {
     try{
@@ -78,23 +82,5 @@ const stripeAccount = async (req, res) => {
     }
   
   }
-  
-  else if (method === "DELETE") {
-    // Delete the Connected Account having provided ID
-    const {
-      query: { id },
-    } = req
-    console.log(id)
-    const deleted = await stripe.accounts.del(id)
-    res.status(200).json({ message: "account deleted successfully", deleted })
-  } 
 
-  // else if (method === "GET") {
-  //   // Retrieve the Connected Account for the provided ID
-  //   // I know it shouldn't be a POST call. Don't judge :D I had a lot on my plate
-  //   const account = await stripe.accounts.retrieve(req.query.id)
-  //   res.status(200).json({ account })
-  // }
 }
-
-export default stripeAccount

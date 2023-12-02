@@ -7,7 +7,7 @@ const accountSession = async (req, res) => {
   
     if (method === "POST") {
         try{
-            const accountSession = await stripe.accountSessions.create({
+            const accSession = await stripe.accountSessions.create({
                 account: req.body.account_connect_id,
                 components: {
                   account_onboarding: {
@@ -17,7 +17,7 @@ const accountSession = async (req, res) => {
               });
           
               res.json({
-                client_secret: accountSession.client_secret,
+                client_secret: accSession.client_secret,
               });
         }
         catch (error) {
