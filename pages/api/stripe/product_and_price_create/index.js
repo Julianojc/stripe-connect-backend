@@ -9,7 +9,7 @@ export default async function stripeProductAndPriceCreate (req, res) {
     const { method } = req
 
     const {
-        query: { price, name, user_id, currency },
+        query: { price, name, user_id, currency, stripeConnectId },
       } = req
   
     if (method === "POST") {
@@ -28,7 +28,11 @@ export default async function stripeProductAndPriceCreate (req, res) {
                 metadata:{
                     "user_id": user_id
                 }
-            });
+            },
+            {
+                stripeAccount: stripeConnectId,
+            }
+            );
 
             if(data != null){
                // return
