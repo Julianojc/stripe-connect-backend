@@ -15,7 +15,7 @@ export default async function stripeProductAndPriceCreate (req, res) {
                 currency: req.body.currency, //ex: 'brl',
                 recurring: {interval: 'month'},
                 product_data: {
-                    name: req.body.title,
+                    name: req.body.name,
                     active: true,
                     metadata:{
                         "user_id": req.body.user_id
