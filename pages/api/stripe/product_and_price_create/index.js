@@ -7,22 +7,26 @@ const stripe = require("stripe")( process.env.NEXT_STRIPE_API_SECRET ) //STRIPE 
 export default async function stripeProductAndPriceCreate (req, res) {
   
     const { method } = req
+
+    const {
+        query: { price, name, user_id, currency },
+      } = req
   
     if (method === "POST") {
         try{
             const data = await stripe.prices.create({
-                unit_amount: req.body.price, //interger ex: 2000
-                currency: req.body.currency, //ex: 'brl',
+                unit_amount: price, //interger ex: 2000
+                currency: currency, //ex: 'brl',
                 recurring: {interval: 'month'},
                 product_data: {
-                    name: req.body.name,
+                    name: name,
                     active: true,
                     metadata:{
-                        "user_id": req.body.user_id
+                        "user_id": user_id
                     }
                 },
                 metadata:{
-                    "user_id": req.body.user_id
+                    "user_id": user_id
                 }
             });
 
@@ -40,7 +44,14 @@ export default async function stripeProductAndPriceCreate (req, res) {
         }
         catch(e){
             return res.status(400).send({
-                error:{ message: e?.message }
+                error:{ 
+                    message: e?.message,
+                    dataSendToServer: {
+                        name: name,
+                        price: price,
+                        userId: user_id
+                    } 
+                }
             });
         }
     }
