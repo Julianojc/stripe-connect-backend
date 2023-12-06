@@ -6,10 +6,14 @@ const host = process.env.NEXT_PUBLIC_HOST
  * data provided. Handles cases for both the flutter app and the web.
  */
 const checkoutSession = async (req, res) => {
-  
-  const { accountConnectId, customerId, priceId, currency = "BRL", mobile } = req.query
 
-  if (req.method === 'POST') {
+  const { method } = req
+  
+  const { accountConnectId, customerId, priceId, currency = "brl", mobile } = req.query
+
+
+
+  if (method === 'POST') {
         
     try {
       // Create Checkout Sessions from body params.

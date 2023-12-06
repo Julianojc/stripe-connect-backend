@@ -7,7 +7,7 @@ export default async function stripeSubscriptionCreate (req, res) {
     const { method } = req
 
     const {
-        query: { customerID, accConnectID, priceID, userID, stripeConnectId },
+        query: { customerId, accConnectId, priceId, userId },
     } = req
       
     if (method === "POST") {
@@ -15,21 +15,22 @@ export default async function stripeSubscriptionCreate (req, res) {
 
             const params = {
                 
-                customer: customerID,
+                customer: customerId,
                 application_fee_percent: process.env.STRIPE_APP_FEE, //.env variable
                 items: [{
-                    price: priceID,
+                    price: priceId,
                 }],
                 //payment_behavior: 'default_incomplete',
                 payment_settings: { 
                     save_default_payment_method: 'on_subscription' 
                 },
+                payment_behavior: 'default_incomplete',
                 expand: ['latest_invoice.payment_intent'],
                 transfer_data: {
-                  destination: accConnectID, // conta connect do criador
+                  destination: accConnectId, // conta connect do criador
                 },
                 metadata:{
-                    "creator_id": userID
+                    "creator_id": userId
                 }
             }
                         
@@ -37,8 +38,8 @@ export default async function stripeSubscriptionCreate (req, res) {
 
             // RETORNA
             res.status(200).json({ 
+                type: "subscription",
                 subscriptionId: subscription.id,
-                object: "subscription",
                 clientSecret: subscription.latest_invoice.payment_intent.client_secret, 
             })
         }
