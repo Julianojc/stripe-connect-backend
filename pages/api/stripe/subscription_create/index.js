@@ -2,31 +2,34 @@
 
 const stripe = require("stripe")( process.env.NEXT_STRIPE_API_SECRET )
 
-const stripeSubscriptionCreate = async (req, res) => {
+export default async function stripeSubscriptionCreate (req, res) {
   
     const { method } = req
-    const _customerID = req.body.customerID;
-    const _connectedAccountID = req.body.accConnectID;
-    const _priceID = req.body.priceID;
-  
+
+    const {
+        query: { customerID, accConnectID, priceID, userID, stripeConnectId },
+    } = req
+      
     if (method === "POST") {
         try{
 
             const params = {
                 
-                customer: `${_customerID}`,
+                customer: customerID,
                 application_fee_percent: process.env.STRIPE_APP_FEE, //.env variable
                 items: [{
-                    price: `${_priceID}`,
+                    price: priceID,
                 }],
                 //payment_behavior: 'default_incomplete',
-                payment_settings: { save_default_payment_method: 'on_subscription' },
+                payment_settings: { 
+                    save_default_payment_method: 'on_subscription' 
+                },
                 expand: ['latest_invoice.payment_intent'],
                 transfer_data: {
-                  destination: `${_connectedAccountID}`, // conta connect do criador
+                  destination: accConnectID, // conta connect do criador
                 },
                 metadata:{
-                    "creator_id": req.body.userID
+                    "creator_id": userID
                 }
             }
                         
@@ -46,6 +49,7 @@ const stripeSubscriptionCreate = async (req, res) => {
             });
         }
     }
+    else{
+        return;
+    }
 }
-
-export default stripeSubscriptionCreate
