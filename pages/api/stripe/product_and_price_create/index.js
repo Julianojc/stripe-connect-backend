@@ -29,9 +29,9 @@ export default async function stripeProductAndPriceCreate (req, res) {
                     "user_id": user_id
                 }
             },
-            {
-                stripeAccount: stripeConnectId,
-            }
+            // {
+            //     stripeAccount: stripeConnectId, //< CRIA O PRODUTO NA CONTA CONECTADA, SEM ESSA LINHA CRIA NA CONTA DA PLATAFORMA
+            // }
             );
 
             if(data != null){
