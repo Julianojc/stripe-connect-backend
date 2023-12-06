@@ -9,7 +9,7 @@ const stripeCustomerAccount = async (req, res) => {
         try{
             const customer = await stripe.customers.create({
                 email: req.body.email,
-                description: 'Usuário Padrão',
+                description: `user_${req.body.userID}`,
                 metadata:{
                     "user_id": req.body.userID
                 }
