@@ -39,23 +39,31 @@ export default async function stripeSubscriptionCreate (req, res) {
                         
             const data = await stripe.subscriptions.create( params );
 
-            await saveSubscInDB({
-                intent_id: data.latest_invoice.payment_intent.id,
-                subscription_id: data.id,
-                creator_id: userCreatorId,
-                client_id: userClientId,
-                modality_id: modalityId,
-                premium: true,
-                active: false,
-                status: "INCOMPLETE"
-            })
+            if(data != null){
 
-            // RETORNA
-            res.status(200).json({ 
-                type: "subscription",
-                subscriptionId: data.id,
-                clientSecret: data.latest_invoice.payment_intent.client_secret, 
-            })
+              await saveSubscInDB({
+                  intent_id: data.latest_invoice.payment_intent.id,
+                  subscription_id: data.id,
+                  creator_id: userCreatorId,
+                  client_id: userClientId,
+                  modality_id: modalityId,
+                  premium: true,
+                  active: false,
+                  status: "INCOMPLETE"
+              })
+
+              // RETORNA
+              res.status(200).json({ 
+                  type: "subscription",
+                  subscriptionId: data.id,
+                  clientSecret: data.latest_invoice.payment_intent.client_secret, 
+              })
+          }
+          else{
+            return res.status(400).send({
+              error:{ message: 'data = null'}
+          });
+          }
         }
         catch(e){
             // RETORNA ERRO
