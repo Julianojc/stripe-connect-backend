@@ -26,7 +26,7 @@ export default async function handler(req, res){
   // See https://stripe.com/docs/webhooks/signatures for more information.
   try {
     event = stripe.webhooks.constructEvent(
-      requestBuffer, 
+      requestBuffer.toString(), //ou requestBuffer.toString(), 
       signature, 
       webhook_secret
     )
@@ -61,7 +61,11 @@ export default async function handler(req, res){
                 },
               );
               
-              await updateDATABASE({subscription_id: subscription_id, status: 'ACTIVE', active: true}) // UPDATE HASURA DATABASE
+              await updateDATABASE({
+                subscription_id: subscription_id, 
+                status: 'ACTIVE', 
+                active: true
+              }) // UPDATE HASURA DATABASE
 
               console.log("Default payment method set for subscription:" + payment_intent.payment_method);
             } catch (err) {

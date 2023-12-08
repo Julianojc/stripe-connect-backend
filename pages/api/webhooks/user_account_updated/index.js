@@ -29,7 +29,7 @@ export default async function handler(req, res){
   // See https://stripe.com/docs/webhooks/signatures for more information.
   try {
     event = stripe.webhooks.constructEvent(
-      requestBuffer, 
+      requestBuffer, //ou requestBuffer.toString(), 
       signature, 
       webhook_secret
     )
