@@ -17,8 +17,8 @@ export default async function handler(req, res){
     return
   }
   
-  const requestBuffer = await buffer(req)
   const signature = req.headers['stripe-signature'];
+  const requestBuffer = await buffer(req)
 
   let event
 
@@ -26,7 +26,7 @@ export default async function handler(req, res){
   // See https://stripe.com/docs/webhooks/signatures for more information.
   try {
     event = stripe.webhooks.constructEvent(
-      requestBuffer.toString(), 
+      requestBuffer, 
       signature, 
       webhook_secret
     )
@@ -78,7 +78,6 @@ export default async function handler(req, res){
            // Use este webhook para notificar seu usuário de que o pagamento dele foi
            // falhou e para recuperar os detalhes do novo cartão.
            const subscription_id = dataObject['subscription']
-           const payment_intent_id = dataObject['payment_intent']
            await updateDATABASE({subscription_id: subscription_id, status: 'PAYMENT_FAILED', active: false}) // UPDATE HASURA DATABASE
           break;
         
@@ -92,13 +91,11 @@ export default async function handler(req, res){
           if (event.request != null) {
             // trata de uma assinatura cancelada por sua solicitação de cima.
             const subscription_id = dataObject['subscription']
-            const payment_intent_id = dataObject['payment_intent']
             await updateDATABASE({subscription_id: subscription_id, status: 'CANCELLED', active: false}) // UPDATE HASURA DATABASE
           } else {
             // trata a assinatura cancelada automaticamente com base
             // nas configurações da sua assinatura.
             const subscription_id = dataObject['subscription']
-            const payment_intent_id = dataObject['payment_intent']
             await updateDATABASE({subscription_id: subscription_id, status: 'CANCELLED', active: false}) // UPDATE HASURA DATABASE
           }
           break;
