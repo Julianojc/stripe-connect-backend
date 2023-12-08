@@ -84,7 +84,11 @@ export default async function handler(req, res){
         case 'invoice.finalized':
            // Se você deseja enviar faturas manualmente para seus clientes
            // ou armazene-os localmente para referência para evitar atingir os limites de taxa do Stripe.
-           await saveInvoiceInDATABASE()
+           await saveInvoiceInDATABASE({
+            invoice_id: dataObject['invoice'],
+            subscription_id: subscription_id,
+            user_id: ''
+           })
           break;
         
         case 'customer.subscription.deleted':
@@ -158,31 +162,31 @@ async function updateDATABASE({subscription_id, status, active}){
 
 //// SAVE INVOICE IN HASURA DB
 
-async function saveInvoiceInDATABASE({subscription_id, status, active}){
+async function saveInvoiceInDATABASE({invoice_id, subscription_id, user_id}){
   try{  
 
       const _mutation = gql`
-      mutation updateSubs(
-        $ubscription_id: String!,
-        $payment_status: subscription_status_enum!,
-        $active: Boolean!
-        ){
-        update_subscription(
-          where: {stripe_subscription_id: {_eq: $ubscription_id}}, 
-          _set: {
-            active: $active, 
-            payment_status: $payment_status
-          }){
-          affected_rows
+      mutation insertINVOICE(
+        $stripe_invoice_id: String!, 
+        $stripe_subscription_id: String!, 
+        $user_id: String!) {
+        insert_invoice_one(
+          object: {
+            stripe_invoice_id: $stripe_invoice_id, 
+            stripe_subscription_id: $stripe_subscription_id, 
+            user_id: $user_id
+        }){
+          id
         }
       }       
       `;      
       var data = await client.mutate({
         mutation: _mutation,
         variables:{
-          subscription_id: subscription_id,
-          payment_status: status,
-          active: active,
+          stripe_invoice_id: invoice_id,
+          stripe_subscription_id: subscription_id,
+          user_id: user_id
+
         }
       })
       if(data != null ){
