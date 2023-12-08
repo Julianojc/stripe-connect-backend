@@ -169,6 +169,8 @@ async function updateDATABASE({subscription_id, status, active}){
 async function saveInvoiceInDATABASE({invoice_id, subscription_id, client_id}){
   try{  
 
+      console.log(`${invoice_id}, ${subscription_id}, ${client_id}`)
+
       const _mutation = gql`
       mutation insertINVOICE(
         $stripe_invoice_id: String!, 
