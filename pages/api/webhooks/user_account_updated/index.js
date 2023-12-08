@@ -33,6 +33,8 @@ export default async function handler(req, res){
 
     if (event.type === "account.updated") { 
 
+      console.log("UPDATE WEBHOOK")
+
         const accountUpdated = event.data.object;
         //console.log("User updated completed successfully")
         //console.log(`user atualizado > ${accountUpdated.id}` ) //data
@@ -55,6 +57,7 @@ export default async function handler(req, res){
       })
       if(data != null ){
         // Return a 200 response to acknowledge receipt of the event
+        console.log(data)
         return res.status(200).json({
           accountUpdated: accountUpdated.id,
           metadata: accountUpdated.metadata,
