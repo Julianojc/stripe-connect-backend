@@ -37,11 +37,11 @@ export default async function stripeSubscriptionCreate (req, res) {
                 }
             }
                         
-            const subscription = await stripe.subscriptions.create( params );
+            const data = await stripe.subscriptions.create( params );
 
             await saveSubscInDB({
-                intent_id: subscription.payment_intent.id,
-                subscription_id: subscription.id,
+                intent_id: data.payment_intent,
+                subscription_id: data.id,
                 creator_id: userCreatorId,
                 client_id: userClientId,
                 modality_id: modalityId,
@@ -53,8 +53,8 @@ export default async function stripeSubscriptionCreate (req, res) {
             // RETORNA
             res.status(200).json({ 
                 type: "subscription",
-                subscriptionId: subscription.id,
-                clientSecret: subscription.latest_invoice.payment_intent.client_secret, 
+                subscriptionId: data.id,
+                clientSecret: data.latest_invoice.payment_intent.client_secret, 
             })
         }
         catch(e){
@@ -82,7 +82,7 @@ async function saveSubscInDB({creator_id, client_id, subscription_id, intent_id,
             $active: Boolean!, 
             $premium: Boolean!, 
             $stripe_subscription_id: String!,
-            stripe_payment_intent_id: String!, 
+            $stripe_payment_intent_id: String!, 
             $user_client_id: String!, 
             $user_creator_id: String!, 
             $payment_status: subscription_status_enum!, 
