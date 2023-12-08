@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 import { buffer } from 'micro';
 
 const stripe = require('stripe')( process.env.NEXT_STRIPE_API_SECRET, { apiVersion: "2023-10-16" } );
-const webhook_secret = "whsec_23a81737130d622b6125d20841fd7ee9314f480048565b8e8c371564d398e6d6"
+const webhook_secret = "whsec_X97wtUjJYbVPPyGjFc9LbsLxTZaPUGFV"
 
 export const config = {
   api: {
@@ -13,14 +13,15 @@ export const config = {
 
 export default async function handler(req, res){
 
-  console.log("UPDATE WEBHOOK")
     
   if (req.method !== "POST") {
     return
   }
+
+  const signature = req.headers['stripe-signature'];
   
   const requestBuffer = await buffer(req)
-  const signature = req.headers['stripe-signature'];
+  
 
   let event
 
@@ -28,10 +29,12 @@ export default async function handler(req, res){
   // See https://stripe.com/docs/webhooks/signatures for more information.
   try {
     event = stripe.webhooks.constructEvent(
-      requestBuffer.toString(), 
+      requestBuffer, 
       signature, 
       webhook_secret
     )
+
+    console.log("webhook verified");
 
     if (event.type === "account.updated") { 
 
