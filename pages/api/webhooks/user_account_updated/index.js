@@ -41,7 +41,7 @@ export default async function handler(req, res){
         // SEND GRAPHQL MUTATION  
         var data = await client.mutate({
           mutation: gql`
-          mutation UpdateUser($id: String!, $role: user_role_enum, $stripe_connect_id: String!) {
+          mutation UpdateUser($id: String!, $role: user_role_enum!, $stripe_connect_id: String!) {
             update_user_by_pk(
               pk_columns: {id: $id}, 
               _set: {role: $role, stripe_connect_id: $stripe_connect_id}) 
