@@ -40,7 +40,7 @@ export default async function stripeSubscriptionCreate (req, res) {
             const data = await stripe.subscriptions.create( params );
 
             await saveSubscInDB({
-                intent_id: data.payment_intent,
+                intent_id: data.latest_invoice.payment_intent.id,
                 subscription_id: data.id,
                 creator_id: userCreatorId,
                 client_id: userClientId,
