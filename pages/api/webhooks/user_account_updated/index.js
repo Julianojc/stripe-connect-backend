@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 import { buffer } from 'micro';
 
 const stripe = require('stripe')( process.env.NEXT_STRIPE_API_SECRET, { apiVersion: "2023-10-16" } );
-const webhook_secret = "whsec_23a81737130d622b6125d20841fd7ee9314f480048565b8e8c371564d398e6d6"
+const webhook_secret = "whsec_LbGJ3TUWl1S418mUH7RxqFWBOx3URD9j"
 
 export const config = {
   api: {
