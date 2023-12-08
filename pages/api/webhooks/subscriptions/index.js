@@ -63,7 +63,7 @@ export default async function handler(req, res){
               
               await updateDATABASE({
                 subscription_id: subscription_id, 
-                status: 'ACTIVE', 
+                status: "ACTIVE", 
                 active: true
               }) // UPDATE HASURA DATABASE
 
@@ -88,11 +88,11 @@ export default async function handler(req, res){
         case 'invoice.finalized':
            // Se você deseja enviar faturas manualmente para seus clientes
            // ou armazene-os localmente para referência para evitar atingir os limites de taxa do Stripe.
-           await saveInvoiceInDATABASE({
-            invoice_id: dataObject['invoice'],
-            subscription_id: subscription_id,
-            user_id: ''
-           })
+            await saveInvoiceInDATABASE({
+              invoice_id: dataObject['invoice'],
+              subscription_id: subscription_id,
+              client_id: dataObject['subscription_details']['metadata']['client_id']
+            })
           break;
         
         case 'customer.subscription.deleted':
@@ -166,7 +166,7 @@ async function updateDATABASE({subscription_id, status, active}){
 
 //// SAVE INVOICE IN HASURA DB
 
-async function saveInvoiceInDATABASE({invoice_id, subscription_id, user_id}){
+async function saveInvoiceInDATABASE({invoice_id, subscription_id, client_id}){
   try{  
 
       const _mutation = gql`
@@ -189,7 +189,7 @@ async function saveInvoiceInDATABASE({invoice_id, subscription_id, user_id}){
         variables:{
           stripe_invoice_id: invoice_id,
           stripe_subscription_id: subscription_id,
-          user_id: user_id
+          user_id: client_id
 
         }
       })
