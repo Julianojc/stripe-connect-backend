@@ -89,7 +89,7 @@ export default async function handler(req, res){
            // Se você deseja enviar faturas manualmente para seus clientes
            // ou armazene-os localmente para referência para evitar atingir os limites de taxa do Stripe.
             await saveInvoiceInDATABASE({
-              invoice_id: dataObject['invoice'],
+              invoice_id: dataObject['id'],
               subscription_id: subscription_id,
               client_id: dataObject['subscription_details']['metadata']['client_id']
             })
