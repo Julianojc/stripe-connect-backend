@@ -26,7 +26,7 @@ export default async function handler(req, res){
   // See https://stripe.com/docs/webhooks/signatures for more information.
   try {
     event = stripe.webhooks.constructEvent(
-      requestBuffer.toString(), //ou requestBuffer.toString(), 
+      requestBuffer.toString(), 
       signature, 
       webhook_secret
     )
@@ -44,67 +44,86 @@ export default async function handler(req, res){
         case 'invoice.payment_succeeded':
           if(dataObject['billing_reason'] == 'subscription_create') {
             
+            const invoicePaymentSucceeded = event.data.object;
             // A assinatura é ativada automaticamente após o pagamento bem-sucedido
             // Define a forma de pagamento utilizada para pagar a primeira fatura
             // como método de pagamento padrão para essa assinatura
-            const subscription_id = dataObject['subscription']
-            const payment_intent_id = dataObject['payment_intent']
+            const subscriptionId = invoicePaymentSucceeded.subscription
+            const paymentId = invoicePaymentSucceeded.payment_intent
   
             // Recupera a intenção de pagamento usada para pagar a assinatura
-            const payment_intent = await stripe.paymentIntents.retrieve(payment_intent_id);
+            const payment_intent = await stripe.paymentIntents.retrieve(paymentId);
   
             try {
-              const subscription = await stripe.subscriptions.update(
-                subscription_id,
-                {
+              const subsUpdated = await stripe.subscriptions.update( subscriptionId, {
                   default_payment_method: payment_intent.payment_method,
                 },
               );
               
               await updateDATABASE({
-                subscription_id: subscription_id, 
+                subscription_id: subscriptionId, 
                 status: "ACTIVE", 
                 active: true
-              }) // UPDATE HASURA DATABASE
+              }) 
 
               console.log("Default payment method set for subscription:" + payment_intent.payment_method);
             } catch (err) {
               console.log(err);
-              console.log(`⚠️  Falied to update the default payment method for subscription: ${subscription_id}`);
+              console.log(`⚠️  Falied to update the default payment method for subscription: ${subscriptionId}`);
             }
           };
   
           break;
+
+        case 'invoice.finalized':
+            // Se você deseja enviar faturas manualmente para seus clientes
+            // ou armazene-os localmente para referência para evitar atingir os limites de taxa do Stripe.
+           const invoiceFinalized = event.data.object;
+           await saveInvoice({
+             invoice_id: invoiceFinalized.id,
+             subscription_id: invoiceFinalized.subscription,
+             client_id: invoiceFinalized.subscription_details.metadata.client_id,
+             invoice_pdf: invoiceFinalized.invoice_pdf,
+             hosted_invoice_url: invoiceFinalized.hosted_invoice_url
+           })
+          break;
+         
           
         case 'invoice.payment_failed':
            // Se o pagamento falhar ou o cliente não tiver um método de pagamento válido,
            // um evento fatura.payment_failed é enviado, a assinatura se torna past_due.
            // Use este webhook para notificar seu usuário de que o pagamento dele foi
            // falhou e para recuperar os detalhes do novo cartão.
-           const subscription_id = dataObject['subscription']
-           await updateDATABASE({subscription_id: subscription_id, status: 'PAYMENT_FAILED', active: false}) // UPDATE HASURA DATABASE
+           const invoicePaymentFailed = event.data.object;
+           if(dataObject == 'invoice'){
+            await updateDATABASE({
+                subscription_id: invoicePaymentFailed.subscription, 
+                status: 'PAYMENT_FAILED', 
+                active: false
+              }) // UPDATE HASURA DATABASE
+          }
           break;
         
-        case 'invoice.finalized':
-           // Se você deseja enviar faturas manualmente para seus clientes
-           // ou armazene-os localmente para referência para evitar atingir os limites de taxa do Stripe.
-            await saveInvoiceInDATABASE({
-              invoice_id: dataObject['id'],
-              subscription_id: subscription_id,
-              client_id: dataObject['subscription_details']['metadata']['client_id']
-            })
-          break;
         
         case 'customer.subscription.deleted':
           if (event.request != null) {
             // trata de uma assinatura cancelada por sua solicitação de cima.
-            const subscription_id = dataObject['subscription']
-            await updateDATABASE({subscription_id: subscription_id, status: 'CANCELLED', active: false}) // UPDATE HASURA DATABASE
+            const customerSubscriptionDeleted = event.data.object;
+
+            await updateDATABASE({
+              subscription_id: customerSubscriptionDeleted.subscription, 
+              status: 'CANCELLED', 
+              active: false
+            }) // UPDATE HASURA DATABASE
           } else {
             // trata a assinatura cancelada automaticamente com base
             // nas configurações da sua assinatura.
-            const subscription_id = dataObject['subscription']
-            await updateDATABASE({subscription_id: subscription_id, status: 'CANCELLED', active: false}) // UPDATE HASURA DATABASE
+            const customerSubscriptionDeleted = event.data.object;
+            await updateDATABASE({
+              subscription_id: customerSubscriptionDeleted.subscription, 
+              status: 'CANCELLED', 
+              active: false
+            }) // UPDATE HASURA DATABASE
           }
           break;
         
@@ -166,7 +185,7 @@ async function updateDATABASE({subscription_id, status, active}){
 
 //// SAVE INVOICE IN HASURA DB
 
-async function saveInvoiceInDATABASE({invoice_id, subscription_id, client_id}){
+async function saveInvoice({invoice_id, subscription_id, client_id, hosted_invoice, pdf}){
   try{  
 
       console.log(`${invoice_id}, ${subscription_id}, ${client_id}`)
@@ -175,12 +194,17 @@ async function saveInvoiceInDATABASE({invoice_id, subscription_id, client_id}){
       mutation insertINVOICE(
         $stripe_invoice_id: String!, 
         $stripe_subscription_id: String!, 
-        $user_id: String!) {
+        $user_id: String!,
+        $invoice_pdf: String!,
+        $hosted_invoice_url: String!
+        ){
         insert_invoice_one(
           object: {
             stripe_invoice_id: $stripe_invoice_id, 
             stripe_subscription_id: $stripe_subscription_id, 
-            user_id: $user_id
+            user_id: $user_id,
+            hosted_invoice_url: $hosted_invoice_url,
+            invoice_pdf: $invoice_pdf
         }){
           id
         }
@@ -191,8 +215,9 @@ async function saveInvoiceInDATABASE({invoice_id, subscription_id, client_id}){
         variables:{
           stripe_invoice_id: invoice_id,
           stripe_subscription_id: subscription_id,
-          user_id: client_id
-
+          user_id: client_id,
+          invoice_pdf: pdf,
+          hosted_invoice_url: hosted_invoice,
         }
       })
       if(data != null ){
