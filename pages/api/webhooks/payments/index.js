@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 import { buffer } from 'micro';
 
 const stripe = require('stripe')( process.env.NEXT_STRIPE_API_SECRET, { apiVersion: "2023-10-16" } );
-const webhook_secret = process.env.STRIPE_WEBHOOK_SUBSCRIPTIONS_SECRET
+const webhook_secret = process.env.STRIPE_WEBHOOK_PAYMENTS_SECRET
 
 export const config = {
   api: {
@@ -49,18 +49,6 @@ export default async function handler(req, res){
             const subscriptionId = invoicePaymentSucceeded.subscription
             const paymentId = invoicePaymentSucceeded.payment_intent
 
-            await updateDATABASE({
-              stripe_invoice_id: invoicePaymentSucceeded.id,
-              stripe_subscription_id: subscriptionId, 
-              status: "ACTIVE", 
-              active: true,
-              user_id: invoicePaymentSucceeded.subscription_details.metadata.client_id,
-              hosted_invoice_url: invoicePaymentSucceeded.hosted_invoice_url,
-              invoice_pdf: invoicePaymentSucceeded.invoice_pdf,
-              period_start: invoicePaymentSucceeded.period_start,
-              period_end: invoicePaymentSucceeded.period_end
-            })   //UPDATE DATABASE
-
             // Recupera a intenção de pagamento usada para pagar a assinatura
             const payment_intent = await stripe.paymentIntents.retrieve( paymentId );
             if(payment_intent != null){
@@ -75,7 +63,20 @@ export default async function handler(req, res){
                   console.log(err);
                   console.log(`⚠️  Falied to update the default payment method for subscription: ${subscriptionId}`);
                 }
-              }
+             }
+
+              await updateDATABASE({
+                stripe_invoice_id: invoicePaymentSucceeded.id,
+                stripe_subscription_id: subscriptionId, 
+                status: "ACTIVE", 
+                active: true,
+                user_id: invoicePaymentSucceeded.subscription_details.metadata.client_id,
+                hosted_invoice_url: invoicePaymentSucceeded.hosted_invoice_url,
+                invoice_pdf: invoicePaymentSucceeded.invoice_pdf,
+                period_start: invoicePaymentSucceeded.period_start,
+                period_end: invoicePaymentSucceeded.period_end
+              })   //UPDATE DATABASE
+
             };
   
         break;
