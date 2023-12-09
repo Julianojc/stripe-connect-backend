@@ -73,8 +73,6 @@ export default async function handler(req, res){
                 user_id: invoicePaymentSucceeded.subscription_details.metadata.client_id,
                 hosted_invoice_url: invoicePaymentSucceeded.hosted_invoice_url,
                 invoice_pdf: invoicePaymentSucceeded.invoice_pdf,
-                period_start: invoicePaymentSucceeded.period_start,
-                period_end: invoicePaymentSucceeded.period_end
               })   //UPDATE DATABASE
 
             };
@@ -160,8 +158,6 @@ async function updateDATABASE({
   user_id, 
   hosted_invoice_url, 
   invoice_pdf,
-  period_start,
-  period_end
 }){
   try{
 
@@ -174,8 +170,6 @@ async function updateDATABASE({
       $user_id: String!,
       $hosted_invoice_url: String!,
       $invoice_pdf: String!,
-      $period_start: String!,
-      $period_end: String!
       ){
       
       update_subscription(
@@ -194,9 +188,7 @@ async function updateDATABASE({
           stripe_subscription_id: $stripe_subscription_id, 
           user_id: $user_id,
           hosted_invoice_url: $hosted_invoice_url,
-          invoice_pdf: $invoice_pdf,
-          period_start: $period_start,
-          period_end: $period_end
+          invoice_pdf: $invoice_pdf
       }){
         id
       }
@@ -213,8 +205,6 @@ async function updateDATABASE({
           user_id: user_id,
           hosted_invoice_url: hosted_invoice_url,
           invoice_pdf: invoice_pdf,
-          period_start: period_start,
-          period_end: period_end
         }
       })
       if(data != null ){
