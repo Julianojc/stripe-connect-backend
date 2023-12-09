@@ -50,9 +50,13 @@ export default async function handler(req, res){
             const paymentId = invoicePaymentSucceeded.payment_intent
 
             await updateDATABASE({
+              invoice_id: invoicePaymentSucceeded.id,
               subscription_id: subscriptionId, 
               status: "ACTIVE", 
-              active: true
+              active: true,
+              user_id: invoicePaymentSucceeded.subscription_details.metadata.client_id,
+              hosted_invoice_url: invoicePaymentSucceeded.hosted_invoice_url,
+              pdf: invoicePaymentSucceeded.invoice_pdf,
             })   //UPDATE DATABASE
 
             // Recupera a intenção de pagamento usada para pagar a assinatura
@@ -74,20 +78,6 @@ export default async function handler(req, res){
   
         break;
 
-        case 'invoice.finalized':
-            // Se você deseja enviar faturas manualmente para seus clientes
-            // ou armazene-os localmente para referência para evitar atingir os limites de taxa do Stripe.
-           const invoiceFinalized = event.data.object;
-           await saveInvoice({
-             invoice_id: invoiceFinalized.id,
-             subscription_id: invoiceFinalized.subscription,
-             client_id: invoiceFinalized.subscription_details.metadata.client_id,
-             hosted_invoice_url: invoiceFinalized.hosted_invoice_url,
-             pdf: invoiceFinalized.invoice_pdf,
-           })
-          break;
-         
-          
         case 'invoice.payment_failed':
            // Se o pagamento falhar ou o cliente não tiver um método de pagamento válido,
            // um evento fatura.payment_failed é enviado, a assinatura se torna past_due.
@@ -97,9 +87,25 @@ export default async function handler(req, res){
            await updateDATABASE({
                 subscription_id: invoicePaymentFailed.subscription, 
                 status: 'PAYMENT_FAILED', 
-                active: false
+                active: false,
+                user_id: invoicePaymentFailed.subscription_details.metadata.client_id,
+                hosted_invoice_url: null,
+                pdf: null,
             }) // UPDATE HASURA DATABASE
           break;
+        
+        // case 'invoice.finalized':
+        //     // Se você deseja enviar faturas manualmente para seus clientes
+        //     // ou armazene-os localmente para referência para evitar atingir os limites de taxa do Stripe.
+        //    const invoiceFinalized = event.data.object;
+        //    await saveInvoice({
+        //      invoice_id: invoiceFinalized.id,
+        //      subscription_id: invoiceFinalized.subscription,
+        //      client_id: invoiceFinalized.subscription_details.metadata.client_id,
+        //      hosted_invoice_url: invoiceFinalized.hosted_invoice_url,
+        //      pdf: invoiceFinalized.invoice_pdf,
+        //    })
+        //   break;
         
         
         case 'customer.subscription.deleted':
@@ -142,79 +148,53 @@ export default async function handler(req, res){
 
 //////////SAVE IN HASURA
 
-async function updateDATABASE({subscription_id, status, active}){
+async function updateDATABASE({invoice_id, subscription_id, status, active, user_id, hosted_invoice, pdf}){
   try{
 
-      const _mutation = gql`
-      mutation updateSubs(
-        $subscription_id: String!,
-        $payment_status: subscription_status_enum!,
-        $active: Boolean!
-        ){
-        update_subscription(
-          where: {stripe_subscription_id: {_eq: $subscription_id}}, 
-          _set: {
-            active: $active, 
-            payment_status: $payment_status
-          }){
-          affected_rows
-        }
-      }       
-      `;
+    const _mutation = gql`
+    mutation updateDB(
+      $subscription_id: String!,
+      $invoice_id: String!
+      $payment_status: subscription_status_enum!,
+      $active: Boolean!,
+      $user_id: String!,
+      $hosted_invoice_url: String!,
+      $invoice_pdf: String!
+      ){
+      
+      update_subscription(
+        where: {stripe_subscription_id: {_eq: $subscription_id}}, 
+        _set: {
+          active: $active, 
+          payment_status: $payment_status,
+          invoice_id: $invoice_id
+        }){
+        affected_rows
+      }
+      
+      insert_invoice_one(
+        object: {
+          stripe_invoice_id: $invoice_id, 
+          stripe_subscription_id: $subscription_id, 
+          user_id: $user_id,
+          hosted_invoice_url: $hosted_invoice_url,
+          invoice_pdf: $invoice_pdf
+      }){
+        id
+      }
+     }         
+    `;
 
       var data = await client.mutate({
         mutation: _mutation,
         variables:{
+          invoice_id: invoice_id,
           subscription_id: subscription_id,
           payment_status: status,
           active: active,
-        }
-      })
-      if(data != null ){
-        // Return a 200 response to acknowledge receipt of the event
-        console.log(data)
-      }
-  }
-  catch(e){
-    console.log(e)
-  }
-}
-
-//// SAVE INVOICE IN HASURA DB
-
-async function saveInvoice({invoice_id, subscription_id, client_id, hosted_invoice, pdf}){
-  try{  
-
-      console.log(`${invoice_id}, ${subscription_id}, ${client_id}`)
-
-      const _mutation = gql`
-      mutation insertINVOICE(
-        $stripe_invoice_id: String!, 
-        $stripe_subscription_id: String!, 
-        $user_id: String!,
-        $invoice_pdf: String!,
-        $hosted_invoice_url: String!
-        ){
-        insert_invoice_one(
-          object: {
-            stripe_invoice_id: $stripe_invoice_id, 
-            stripe_subscription_id: $stripe_subscription_id, 
-            user_id: $user_id,
-            hosted_invoice_url: $hosted_invoice_url,
-            invoice_pdf: $invoice_pdf
-        }){
-          id
-        }
-      }       
-      `;      
-      var data = await client.mutate({
-        mutation: _mutation,
-        variables:{
-          stripe_invoice_id: invoice_id,
-          stripe_subscription_id: subscription_id,
-          user_id: client_id,
-          invoice_pdf: pdf,
+          user_id: user_id,
           hosted_invoice_url: hosted_invoice,
+          invoice_pdf: pdf,
         }
       })
       if(data != null ){
@@ -226,6 +206,9 @@ async function saveInvoice({invoice_id, subscription_id, client_id, hosted_invoi
     console.log(e)
   }
 }
+
+
+
 
 
   
