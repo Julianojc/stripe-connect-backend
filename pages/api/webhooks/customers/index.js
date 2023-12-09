@@ -36,23 +36,74 @@ export default async function handler(req, res){
 
     console.log("webhook verified");
 
-    if (event.type === "account.updated") { 
+    const _mutation = gql`
+    mutation UpdateUser(
+            $user_id: String!, 
+            $customer_id: String!, 
+            $email: String!
+        ){               
+        update_stripe_info(
+            where: {user_id: {_eq: $user_id}}, 
+            _set: {customer_id: $customer_id, email: $email}) {
+            affected_rows
+        }
+    }`;
+
+    switch (event.type) {
+        case 'customer.created':
+            const customerCreated = event.data.object;
+            
+    
+            var data = await client.mutate({
+                mutation: _mutation,
+                variables:{
+                    user_id: customerCreated.metadata.user_id,
+                    customer_id: customerCreated.id,
+                    email: customerCreated.email
+                }
+            })
+
+            if(data != null ){
+                console.log(data)
+                return res.status(200).json({
+                    accountUpdated: customerCreated.id,
+                    metadata: customerCreated.metadata,
+                    userId: customerCreated.metadata.user_id
+                })
+            }
+        break;
+
+
+        case 'customer.updated':
+            const customerUpdated = event.data.object;
+    
+            var data = await client.mutate({
+                mutation: _mutation,
+                variables:{
+                    user_id: customerUpdated.metadata.user_id,
+                    customer_id: customerUpdated.id,
+                    email: customerUpdated.email
+                }
+            })
+            
+            if(data != null ){
+                console.log(data)
+                return res.status(200).json({
+                    accountUpdated: customerUpdated.id,
+                    metadata: customerUpdated.metadata,
+                    userId: customerUpdated.metadata.user_id
+                })
+            }
+        
+        break;
+
+        default: 
+            console.log(`Unhandled event type ${event.type}`);
+    }
+
+    if (event.type === "customer.created") { 
 
         const accountUpdated = event.data.object;
-        //console.log("User updated completed successfully")
-        //console.log(`user atualizado > ${accountUpdated.id}` ) //data
-        // SEND GRAPHQL MUTATION 
-
-        // const _mutation = gql`
-        // mutation UpdateUser($id: String!, $role: user_role_enum!, $stripe_connect_id: String!) {
-        //   update_user_by_pk(
-        //     pk_columns: {id: $id}, 
-        //     _set: {role: $role, stripe_connect_id: $stripe_connect_id}) {
-        //       id
-        //     }
-          
-
-        // }`;
 
         const _mutation = gql`
         mutation UpdateUser($user_id: String!, $role: user_role_enum!, $stripe_connect_id: String!, $email: String!) {
