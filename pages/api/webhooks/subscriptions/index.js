@@ -31,9 +31,6 @@ export default async function handler(req, res){
       webhook_secret
     )
 
-    // Extract the object from the event.
-    const dataObject = event.data.object;
-    //const metadata = dataObject['metadata']
 
     // Handle the event
     // Review important events for Billing webhooks
@@ -42,36 +39,38 @@ export default async function handler(req, res){
     switch (event.type) {
         
         case 'invoice.payment_succeeded':
-          if(dataObject['billing_reason'] == 'subscription_create') {
+          const invoicePaymentSucceeded = event.data.object;
+          
+          if(invoicePaymentSucceeded.billing_reason == 'subscription_create') {
             
-            const invoicePaymentSucceeded = event.data.object;
             // A assinatura é ativada automaticamente após o pagamento bem-sucedido
             // Define a forma de pagamento utilizada para pagar a primeira fatura
             // como método de pagamento padrão para essa assinatura
             const subscriptionId = invoicePaymentSucceeded.subscription
             const paymentId = invoicePaymentSucceeded.payment_intent
-  
-            // Recupera a intenção de pagamento usada para pagar a assinatura
-            const payment_intent = await stripe.paymentIntents.retrieve(paymentId);
-  
-            try {
-              const subsUpdated = await stripe.subscriptions.update( subscriptionId, {
-                  default_payment_method: payment_intent.payment_method,
-                },
-              );
-              
-              await updateDATABASE({
-                subscription_id: subscriptionId, 
-                status: "ACTIVE", 
-                active: true
-              }) 
 
-              console.log("Default payment method set for subscription:" + payment_intent.payment_method);
-            } catch (err) {
-              console.log(err);
-              console.log(`⚠️  Falied to update the default payment method for subscription: ${subscriptionId}`);
-            }
-          };
+            await updateDATABASE({
+              subscription_id: subscriptionId, 
+              status: "ACTIVE", 
+              active: true
+            })   //UPDATE DATABASE
+
+            // Recupera a intenção de pagamento usada para pagar a assinatura
+            const payment_intent = await stripe.paymentIntents.retrieve( paymentId );
+            if(payment_intent != null){
+                try {
+                  const subsUpdated = await stripe.subscriptions.update( subscriptionId, {
+                      default_payment_method: payment_intent.payment_method,
+                    },
+                  );
+                  console.log("Default payment method set for subscription:" + payment_intent.payment_method);
+                }
+                catch (err) {
+                  console.log(err);
+                  console.log(`⚠️  Falied to update the default payment method for subscription: ${subscriptionId}`);
+                }
+              }
+            };
   
           break;
 
