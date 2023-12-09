@@ -93,8 +93,8 @@ export default async function handler(req, res){
                 status: 'PAYMENT_FAILED', 
                 active: false,
                 user_id: invoicePaymentFailed.subscription_details.metadata.client_id,
-                hosted_invoice_url: null,
-                invoice_pdf: null,
+                hosted_invoice_url: invoicePaymentFailed.hosted_invoice_url,
+                invoice_pdf: invoicePaymentFailed.invoice_pdf,
             }) // UPDATE HASURA DATABASE
           break;
         
@@ -158,7 +158,7 @@ async function updateDATABASE({
   status, 
   active, 
   user_id, 
-  hosted_invoice, 
+  hosted_invoice_url, 
   invoice_pdf,
   period_start,
   period_end
@@ -211,7 +211,7 @@ async function updateDATABASE({
           payment_status: status,
           active: active,
           user_id: user_id,
-          hosted_invoice_url: hosted_invoice,
+          hosted_invoice_url: hosted_invoice_url,
           invoice_pdf: invoice_pdf,
           period_start: period_start,
           period_end: period_end
