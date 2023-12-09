@@ -87,7 +87,7 @@ export default async function handler(req, res){
             if(data != null ){
                 console.log(data)
                 return res.status(200).json({
-                    accountUpdated: customerCreated.id,
+                    accountCreated: customerCreated.id,
                     metadata: customerCreated.metadata,
                     userId: customerCreated.metadata.user_id
                 })
