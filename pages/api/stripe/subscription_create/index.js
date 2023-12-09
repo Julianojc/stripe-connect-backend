@@ -42,9 +42,9 @@ export default async function stripeSubscriptionCreate (req, res) {
             if(data != null){
 
               await saveSubscInDB({
+                  subscription_id: data.id,
                   creator_id: userCreatorId,
                   client_id: userClientId,
-                  subscription_id: data.id,
                   intent_id: data.latest_invoice.payment_intent.id,                  
                   modality_id: modalityId,
                   status: "INCOMPLETE",

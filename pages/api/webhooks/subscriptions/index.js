@@ -50,13 +50,15 @@ export default async function handler(req, res){
             const paymentId = invoicePaymentSucceeded.payment_intent
 
             await updateDATABASE({
-              invoice_id: invoicePaymentSucceeded.id,
-              subscription_id: subscriptionId, 
+              stripe_invoice_id: invoicePaymentSucceeded.id,
+              stripe_subscription_id: subscriptionId, 
               status: "ACTIVE", 
               active: true,
               user_id: invoicePaymentSucceeded.subscription_details.metadata.client_id,
               hosted_invoice_url: invoicePaymentSucceeded.hosted_invoice_url,
-              pdf: invoicePaymentSucceeded.invoice_pdf,
+              invoice_pdf: invoicePaymentSucceeded.invoice_pdf,
+              period_start: invoicePaymentSucceeded.period_start,
+              period_end: invoicePaymentSucceeded.period_end
             })   //UPDATE DATABASE
 
             // Recupera a intenção de pagamento usada para pagar a assinatura
@@ -85,12 +87,13 @@ export default async function handler(req, res){
            // falhou e para recuperar os detalhes do novo cartão.
            const invoicePaymentFailed = event.data.object;
            await updateDATABASE({
-                subscription_id: invoicePaymentFailed.subscription, 
+                stripe_invoice_id: invoicePaymentFailed.id,
+                stripe_subscription_id: invoicePaymentFailed.subscription, 
                 status: 'PAYMENT_FAILED', 
                 active: false,
                 user_id: invoicePaymentFailed.subscription_details.metadata.client_id,
                 hosted_invoice_url: null,
-                pdf: null,
+                invoice_pdf: null,
             }) // UPDATE HASURA DATABASE
           break;
         
@@ -114,7 +117,7 @@ export default async function handler(req, res){
             const customerSubscriptionDeleted = event.data.object;
 
             await updateDATABASE({
-              subscription_id: customerSubscriptionDeleted.subscription, 
+              stripe_subscription_id: customerSubscriptionDeleted.subscription, 
               status: 'CANCELLED', 
               active: false
             }) // UPDATE HASURA DATABASE
@@ -123,7 +126,7 @@ export default async function handler(req, res){
             // nas configurações da sua assinatura.
             const customerSubscriptionDeleted = event.data.object;
             await updateDATABASE({
-              subscription_id: customerSubscriptionDeleted.subscription, 
+              stripe_subscription_id: customerSubscriptionDeleted.subscription, 
               status: 'CANCELLED', 
               active: false
             }) // UPDATE HASURA DATABASE
@@ -148,53 +151,69 @@ export default async function handler(req, res){
 
 //////////SAVE IN HASURA
 
-async function updateDATABASE({invoice_id, subscription_id, status, active, user_id, hosted_invoice, pdf}){
+async function updateDATABASE({
+  stripe_invoice_id, 
+  stripe_subscription_id, 
+  status, 
+  active, 
+  user_id, 
+  hosted_invoice, 
+  invoice_pdf,
+  period_start,
+  period_end
+}){
   try{
 
     const _mutation = gql`
     mutation updateDB(
-      $subscription_id: String!,
-      $invoice_id: String!
+      $stripe_subscription_id: String!,
+      $stripe_invoice_id: String!
       $payment_status: subscription_status_enum!,
       $active: Boolean!,
       $user_id: String!,
       $hosted_invoice_url: String!,
-      $invoice_pdf: String!
+      $invoice_pdf: String!,
+      $period_start: String!,
+      $period_end: String!
       ){
       
       update_subscription(
-        where: {stripe_subscription_id: {_eq: $subscription_id}}, 
+        where: {stripe_subscription_id: {_eq: $stripe_subscription_id}}, 
         _set: {
           active: $active, 
           payment_status: $payment_status,
-          invoice_id: $invoice_id
+          invoice_id: $stripe_invoice_id
         }){
         affected_rows
       }
       
       insert_invoice_one(
         object: {
-          stripe_invoice_id: $invoice_id, 
-          stripe_subscription_id: $subscription_id, 
+          stripe_invoice_id: $stripe_invoice_id, 
+          stripe_subscription_id: $stripe_subscription_id, 
           user_id: $user_id,
           hosted_invoice_url: $hosted_invoice_url,
-          invoice_pdf: $invoice_pdf
+          invoice_pdf: $invoice_pdf,
+          period_start: $period_start,
+          period_end: $period_end
       }){
         id
       }
-     }         
+     } 
     `;
 
       var data = await client.mutate({
         mutation: _mutation,
         variables:{
-          invoice_id: invoice_id,
-          subscription_id: subscription_id,
+          stripe_invoice_id: stripe_invoice_id,
+          stripe_subscription_id: stripe_subscription_id,
           payment_status: status,
           active: active,
           user_id: user_id,
           hosted_invoice_url: hosted_invoice,
-          invoice_pdf: pdf,
+          invoice_pdf: invoice_pdf,
+          period_start: period_start,
+          period_end: period_end
         }
       })
       if(data != null ){
