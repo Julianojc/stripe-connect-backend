@@ -12,13 +12,16 @@ export const config = {
 }
 
 export default async function handler(req, res){
+
     
   if (req.method !== "POST") {
     return
   }
-  
+
   const signature = req.headers['stripe-signature'];
+  
   const requestBuffer = await buffer(req)
+  
 
   let event
 
@@ -26,16 +29,14 @@ export default async function handler(req, res){
   // See https://stripe.com/docs/webhooks/signatures for more information.
   try {
     event = stripe.webhooks.constructEvent(
-      requestBuffer.toString(), 
+      requestBuffer.toString(), //ou requestBuffer.toString(), 
       signature, 
       webhook_secret
     )
 
+    console.log("webhook verified");
 
-    // Handle the event
-    // Review important events for Billing webhooks
-    // https://stripe.com/docs/billing/webhooks
-    // Remove comment to see the various objects sent for this sample
+
     switch (event.type) {
         
         case 'invoice.payment_succeeded':
@@ -44,8 +45,7 @@ export default async function handler(req, res){
           if(invoicePaymentSucceeded.billing_reason == 'subscription_create') {
             
             // A assinatura é ativada automaticamente após o pagamento bem-sucedido
-            // Define a forma de pagamento utilizada para pagar a primeira fatura
-            // como método de pagamento padrão para essa assinatura
+            // Define a forma de pagamento utilizada para pagar a primeira fatura como método de pagamento padrão para essa assinatura
             const subscriptionId = invoicePaymentSucceeded.subscription
             const paymentId = invoicePaymentSucceeded.payment_intent
 
@@ -72,7 +72,7 @@ export default async function handler(req, res){
               }
             };
   
-          break;
+        break;
 
         case 'invoice.finalized':
             // Se você deseja enviar faturas manualmente para seus clientes
@@ -82,8 +82,8 @@ export default async function handler(req, res){
              invoice_id: invoiceFinalized.id,
              subscription_id: invoiceFinalized.subscription,
              client_id: invoiceFinalized.subscription_details.metadata.client_id,
-             invoice_pdf: invoiceFinalized.invoice_pdf,
-             hosted_invoice_url: invoiceFinalized.hosted_invoice_url
+             hosted_invoice_url: invoiceFinalized.hosted_invoice_url,
+             pdf: invoiceFinalized.invoice_pdf,
            })
           break;
          
@@ -94,13 +94,11 @@ export default async function handler(req, res){
            // Use este webhook para notificar seu usuário de que o pagamento dele foi
            // falhou e para recuperar os detalhes do novo cartão.
            const invoicePaymentFailed = event.data.object;
-           if(dataObject == 'invoice'){
-            await updateDATABASE({
+           await updateDATABASE({
                 subscription_id: invoicePaymentFailed.subscription, 
                 status: 'PAYMENT_FAILED', 
                 active: false
-              }) // UPDATE HASURA DATABASE
-          }
+            }) // UPDATE HASURA DATABASE
           break;
         
         
