@@ -51,7 +51,33 @@ export default async function handler(req, res){
     }`;
 
     switch (event.type) {
-         case 'customer.updated':
+        
+      case 'customer.created':
+            const customerCreated = event.data.object;
+            
+    
+            var data = await client.mutate({
+                mutation: _mutation,
+                variables:{
+                    user_id: customerCreated.metadata.user_id,
+                    name: customerCreated.name,
+                    customer_id: customerCreated.id,
+                    email: customerCreated.email
+                }
+            })
+
+            if(data != null ){
+                console.log(data)
+                return res.status(200).json({
+                    accountUpdated: customerCreated.id,
+                    metadata: customerCreated.metadata,
+                    userId: customerCreated.metadata.user_id
+                })
+            }
+        break;
+
+
+        case 'customer.updated':
             const customerUpdated = event.data.object;
     
             var data = await client.mutate({
