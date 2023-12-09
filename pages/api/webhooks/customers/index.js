@@ -36,8 +36,26 @@ export default async function handler(req, res){
 
     console.log("webhook verified");
 
-    const _mutation = gql`
-    mutation UpdateUser(
+    const _mutationInsert = gql`
+    mutation InsertInfo(
+          $customer_id: String!, 
+          $email: String!, 
+          $name: String!, 
+          $user_id: String!
+      ){
+      insert_stripe_info_one(
+        object: {
+          customer_id: $customer_id, 
+          email: $email, 
+          name: $name, 
+          user_id: $user_id
+        }){
+        id
+      }
+    }`;
+
+    const _mutationUpdate = gql`
+    mutation UpdateInfo(
             $user_id: String!, 
             $customer_id: String!, 
             $name: String!,
@@ -50,14 +68,14 @@ export default async function handler(req, res){
         }
     }`;
 
+
     switch (event.type) {
         
       case 'customer.created':
             const customerCreated = event.data.object;
             
-    
             var data = await client.mutate({
-                mutation: _mutation,
+                mutation: _mutationInsert ,
                 variables:{
                     user_id: customerCreated.metadata.user_id,
                     name: customerCreated.name,
@@ -81,7 +99,7 @@ export default async function handler(req, res){
             const customerUpdated = event.data.object;
     
             var data = await client.mutate({
-                mutation: _mutation,
+                mutation: _mutationUpdate,
                 variables:{
                     user_id: customerUpdated.metadata.user_id,
                     name: customerUpdated.name,
