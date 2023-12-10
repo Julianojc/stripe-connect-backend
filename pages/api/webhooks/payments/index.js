@@ -73,6 +73,7 @@ export default async function handler(req, res){
                 user_id: invoicePaymentSucceeded.subscription_details.metadata.client_id,
                 hosted_invoice_url: invoicePaymentSucceeded.hosted_invoice_url,
                 invoice_pdf: invoicePaymentSucceeded.invoice_pdf,
+                amount_paid: invoicePaymentSucceeded.amount_paid
               })   //UPDATE DATABASE
 
             };
@@ -93,6 +94,7 @@ export default async function handler(req, res){
                 user_id: invoicePaymentFailed.subscription_details.metadata.client_id,
                 hosted_invoice_url: invoicePaymentFailed.hosted_invoice_url,
                 invoice_pdf: invoicePaymentFailed.invoice_pdf,
+                amount_paid: invoicePaymentFailed.amount_paid
             }) // UPDATE HASURA DATABASE
           break;
         
@@ -158,6 +160,7 @@ async function updateDATABASE({
   user_id, 
   hosted_invoice_url, 
   invoice_pdf,
+  amount_paid
 }){
   try{
 
@@ -170,6 +173,7 @@ async function updateDATABASE({
       $user_id: String!,
       $hosted_invoice_url: String!,
       $invoice_pdf: String!,
+      $amount_paid, Int!
       ){
       
       update_subscription(
@@ -188,7 +192,8 @@ async function updateDATABASE({
           stripe_subscription_id: $stripe_subscription_id, 
           user_id: $user_id,
           hosted_invoice_url: $hosted_invoice_url,
-          invoice_pdf: $invoice_pdf
+          invoice_pdf: $invoice_pdf,
+          amount_paid: $amount_paid
       }){
         id
       }
@@ -205,6 +210,7 @@ async function updateDATABASE({
           user_id: user_id,
           hosted_invoice_url: hosted_invoice_url,
           invoice_pdf: invoice_pdf,
+          amount_paid: amount_paid
         }
       })
       if(data != null ){
