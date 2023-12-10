@@ -173,7 +173,7 @@ async function updateDATABASE({
       $user_id: String!,
       $hosted_invoice_url: String!,
       $invoice_pdf: String!,
-      $amount_paid, Int!
+      $amount_paid: Int!
       ){
       
       update_subscription(
