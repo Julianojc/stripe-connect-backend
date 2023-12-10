@@ -181,7 +181,6 @@ async function updateDATABASE({
         _set: {
           active: $active, 
           payment_status: $payment_status,
-          invoice_id: $stripe_invoice_id
         }){
         affected_rows
       }
