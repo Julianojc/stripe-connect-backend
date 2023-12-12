@@ -112,9 +112,17 @@ export default async function handler(req, res){
         //   break;
         
         
+        case 'customer.subscription.updated':
+          // Quando a assintura é programada para ser cancelada automaticamente
+          // no final do periodo ja pago pelo cliente
+          // DOCS: https://stripe.com/docs/billing/subscriptions/cancel
+
+         
+        break
+
         case 'customer.subscription.deleted':
           if (event.request != null) {
-            // trata de uma assinatura cancelada por sua solicitação de cima.
+            // trata de uma assinatura quando é cancelada.
             const customerSubscriptionDeleted = event.data.object;
 
             await updateDATABASE({
@@ -223,7 +231,3 @@ async function updateDATABASE({
 }
 
 
-
-
-
-  
