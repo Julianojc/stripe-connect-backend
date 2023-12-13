@@ -5,6 +5,12 @@ export default async function stripeAccount (req, res) {
   
   const { method } = req
 
+  const {
+    query: { userID, stripeUserID, name, lastname},
+  } = req
+
+  var stripeID = '';
+
   if(method != "POST"){
     return res.status(500);
   }
@@ -12,13 +18,6 @@ export default async function stripeAccount (req, res) {
   if (method === "POST") {
     try{
     
-     var _stripeUserID = req.body.stripeUserID;
-    const _userID = req.body.userID;
-    const _name = req.body.name;
-    const _lastname = req.body.lastname;
-    const _nickname = req.body.lastname;
-    const _email = req.body.email;
-    const _profileURL = req.body.profileURL
 
     // CREATE CONNECTED ACCOUNT
     const { mobile } = req.query
@@ -39,22 +38,22 @@ export default async function stripeAccount (req, res) {
               //url: process.env.WEB_APP_URL/@`$nickname`
             },
             individual: {
-                first_name: _name,
-                last_name: _lastname,
+                first_name: name,
+                last_name: lastname,
             },
             metadata: {
-                'user_id': _userID
+                'user_id': userID
             }
           })
 
-          _stripeUserID = account.id //set variable
+          stripeID = account.id //set variable
       }
     
       // PARAMS
       const params = stripe.AccountLinkCreateParams = {       
-        account: _stripeUserID,
-        refresh_url: `${host}/api/stripe/account/reauth?account_id=${_stripeUserID}`, //redirec. quando o link expira ou há erro
-        return_url: `${host}/register${mobile ? "-mobile" : ""}?account_id=${_stripeUserID }&result=success`, // return link on sucess
+        account: stripeID,
+        refresh_url: `${host}/api/stripe/account/reauth?account_id=${stripeID}`, //redirec. quando o link expira ou há erro
+        return_url: `${host}/register${mobile ? "-mobile" : ""}?account_id=${stripeID}&result=success`, // return link on sucess
         type: 'account_onboarding',
       }
 
@@ -66,7 +65,7 @@ export default async function stripeAccount (req, res) {
         res.status(200).json({ 
           success: true, 
           url: accountLinks.url, 
-          accountID: _stripeUserID 
+          accountID: stripeID 
         })
         
       } 
