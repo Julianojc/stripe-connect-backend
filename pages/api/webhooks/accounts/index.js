@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 import { buffer } from 'micro';
 
 const stripe = require('stripe')( process.env.NEXT_STRIPE_API_SECRET, { apiVersion: "2023-10-16" } );
-const webhook_secret = process.env.WEBHOOK_ACCOUNTS_SECRET
+const webhook_secret = process.env.STRIPE_WEBHOOK_ACCOUNTS_SECRET
 
 export const config = {
   api: {
@@ -29,7 +29,7 @@ export default async function handler(req, res){
   // See https://stripe.com/docs/webhooks/signatures for more information.
   try {
     event = stripe.webhooks.constructEvent(
-      requestBuffer.toString(), //ou requestBuffer.toString(), 
+      requestBuffer.toString(), 
       signature, 
       webhook_secret
     )
