@@ -39,21 +39,7 @@ export default async function handler(req, res){
     if (event.type === "account.updated") { 
 
         const accountUpdated = event.data.object;
-        //console.log("User updated completed successfully")
-        //console.log(`user atualizado > ${accountUpdated.id}` ) //data
-        // SEND GRAPHQL MUTATION 
-
-        // const _mutation = gql`
-        // mutation UpdateUser($id: String!, $role: user_role_enum!, $stripe_connect_id: String!) {
-        //   update_user_by_pk(
-        //     pk_columns: {id: $id}, 
-        //     _set: {role: $role, stripe_connect_id: $stripe_connect_id}) {
-        //       id
-        //     }
-          
-
-        // }`;
-
+   
         const _mutation = gql`
         mutation UpdateUser($user_id: String!, $role: user_role_enum!, $stripe_connect_id: String!, $email: String!) {
           

@@ -29,30 +29,30 @@ export default async function handler(req, res){
   // See https://stripe.com/docs/webhooks/signatures for more information.
   try {
     event = stripe.webhooks.constructEvent(
-      requestBuffer.toString(), //ou requestBuffer.toString(), 
+      requestBuffer.toString(),  
       signature, 
       webhook_secret
     )
 
     console.log("webhook verified");
 
-    const _mutationInsert = gql`
-    mutation InsertInfo(
-          $customer_id: String!, 
-          $email: String!, 
-          $name: String!, 
-          $user_id: String!
-      ){
-      insert_stripe_info_one(
-        object: {
-          customer_id: $customer_id, 
-          email: $email, 
-          name: $name, 
-          user_id: $user_id
-        }){
-        id
-      }
-    }`;
+    // const _mutationInsert = gql`
+    // mutation InsertInfo(
+    //       $customer_id: String!, 
+    //       $email: String!, 
+    //       $name: String!, 
+    //       $user_id: String!
+    //   ){
+    //   insert_stripe_info_one(
+    //     object: {
+    //       customer_id: $customer_id, 
+    //       email: $email, 
+    //       name: $name, 
+    //       user_id: $user_id
+    //     }){
+    //     id
+    //   }
+    // }`;
 
     const _mutationUpdate = gql`
     mutation UpdateInfo(
@@ -75,7 +75,7 @@ export default async function handler(req, res){
             const customerCreated = event.data.object;
             
             var data = await client.mutate({
-                mutation: _mutationInsert ,
+                mutation: _mutationUpdate,
                 variables:{
                     user_id: customerCreated.metadata.user_id,
                     name: customerCreated.name,
