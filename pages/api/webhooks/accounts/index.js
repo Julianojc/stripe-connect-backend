@@ -41,7 +41,7 @@ export default async function handler(req, res){
         const accountUpdated = event.data.object;
    
         const _mutation = gql`
-        mutation UpdateUser($user_id: String!, $role: user_role_enum!, $stripe_connect_id: String!, $email: String!) {
+        mutation UpdateUserData($user_id: String!, $role: user_role_enum!, $stripe_connect_id: String!, $email: String!) {
           
           update_user_by_pk(
             pk_columns: {id: $user_id}, 
@@ -82,3 +82,5 @@ export default async function handler(req, res){
   }
 }
   
+
+

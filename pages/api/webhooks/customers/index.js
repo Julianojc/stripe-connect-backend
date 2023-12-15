@@ -36,24 +36,6 @@ export default async function handler(req, res){
 
     console.log("webhook verified");
 
-    // const _mutationInsert = gql`
-    // mutation InsertInfo(
-    //       $customer_id: String!, 
-    //       $email: String!, 
-    //       $name: String!, 
-    //       $user_id: String!
-    //   ){
-    //   insert_stripe_info_one(
-    //     object: {
-    //       customer_id: $customer_id, 
-    //       email: $email, 
-    //       name: $name, 
-    //       user_id: $user_id
-    //     }){
-    //     id
-    //   }
-    // }`;
-
     const _mutationUpdate = gql`
     mutation UpdateInfo(
             $user_id: String!, 
@@ -73,6 +55,13 @@ export default async function handler(req, res){
         
       case 'customer.created':
             const customerCreated = event.data.object;
+
+            createDefaultModality({ //CRIA UM PRODUTO E UMA MODALIDADE PADRÃO
+               name: 'Premium',
+               userId: customerCreated.metadata.user_id,
+               price: 1599,
+               currency: 'brl'
+            })
             
             var data = await client.mutate({
                 mutation: _mutationUpdate,
@@ -129,4 +118,30 @@ export default async function handler(req, res){
     return res.status(400).send(`Webhook Error: ${err.message}`)
   }
 }
+
+// CRIA UM PRODUTO/MODALIDADE PARA O 
+// NOVO CRIADOR DE CONTEUDO
+
+async function createDefaultModality({name, userId, price, currency}) {
+  try{
+     const data = await stripe.prices.create({
+       unit_amount: price, //interger ex: 2000
+       currency: currency, //ex: 'brl',
+       recurring: {interval: 'month'},
+       product_data: {
+           name: name,
+           active: true,
+           metadata:{
+               "user_id": userId
+           }
+       },
+       metadata:{
+           "user_id": userId
+       }
+     });
+  }
+  catch(e){
+   print(e)
+  }
+ }
   
