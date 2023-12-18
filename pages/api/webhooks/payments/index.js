@@ -176,7 +176,7 @@ async function updateDATABASE({
     mutation updateDB(
       $stripe_subscription_id: String!,
       $stripe_invoice_id: String!
-      $payment_status: subscription_status_enum!,
+      $payment_status: subscription_payment_status_enum!,
       $active: Boolean!,
       $user_id: String!,
       $hosted_invoice_url: String!,

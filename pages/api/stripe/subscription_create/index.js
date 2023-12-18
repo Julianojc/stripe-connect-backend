@@ -92,7 +92,7 @@ async function saveSubscInDB({creator_id, client_id, subscription_id, intent_id,
           $stripe_payment_intent_id: String!, 
           $user_client_id: String!, 
           $user_creator_id: String!, 
-          $payment_status: subscription_status_enum!, 
+          $payment_status: subscription_payment_status_enum!, 
           $modality_id: uuid!
           ){
           insert_subscription_one(
