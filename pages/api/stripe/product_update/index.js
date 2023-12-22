@@ -4,26 +4,26 @@ const stripe = require("stripe")( process.env.NEXT_STRIPE_API_SECRET ) //STRIPE 
 
 // DELETA UM PRODUTO E UM PREÇO
 
-export default async function stripeProductDelete (req, res) {
+export default async function stripeProductUpdate(req, res) {
   
     const { method } = req
 
     const {
-        query: { priceid, productId },
+        query: { productId, active, name },
       } = req
   
     if (method === "POST") {
         try{
-            const priceUpdate = await stripe.prices.update({
-                active: false
+            const productUpdate = await stripe.product.update(
+                productId,
+                {
+                name: name,
+                active: active
             });
 
-            if(priceUpdate != null){
-                await stripe.product.del(productId);
-               // return
+            if(productUpdate != null){
                return res.status(200).json({ 
                 success: true, 
-                priceId: data.id,
                 productId: data.product 
             })
                
@@ -38,5 +38,3 @@ export default async function stripeProductDelete (req, res) {
         }
     }
 }
-
-
