@@ -17,14 +17,15 @@ export default async function stripeProductUpdate(req, res) {
             const product = await stripe.products.update(
                 productId,
                 {
-                name: name,
-                active: active
-            });
+                    name: name,
+                    active: active
+                }
+            );
 
             if(product != null){
                return res.status(200).json({ 
                 success: true, 
-                product: data.product 
+                product: product 
             })
                
         }
