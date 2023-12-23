@@ -14,17 +14,17 @@ export default async function stripeProductUpdate(req, res) {
   
     if (method === "POST") {
         try{
-            const productUpdate = await stripe.product.update(
+            const product = await stripe.products.update(
                 productId,
                 {
                 name: name,
                 active: active
             });
 
-            if(productUpdate != null){
+            if(product != null){
                return res.status(200).json({ 
                 success: true, 
-                productId: data.product 
+                product: data.product 
             })
                
         }
