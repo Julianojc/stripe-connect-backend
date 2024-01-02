@@ -18,7 +18,7 @@ const balanceRetrieve = async (req, res) => {
             }); 
             
             res.status(200).json({ 
-                transations: _balanceTransations
+                transactions: _balanceTransations
             });
 
         }
