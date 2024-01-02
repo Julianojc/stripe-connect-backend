@@ -14,7 +14,7 @@ export default async function stripePayoutCreate(req, res){
         try{
             const payout = await stripe.payouts.create(
                 {
-                amount: amount, //int
+                amount: amount, //int // limite é o saldo disponivel na conta conectada
                 currency: currency, //'brl',
                 source_type: 'bank_account',
                 },
