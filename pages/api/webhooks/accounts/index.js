@@ -45,16 +45,17 @@ export default async function handler(req, res){
           $user_id: String!, 
           $role: user_role_enum!, 
           $stripe_connect_id: String!, 
-          $email: String!
+          $email: String!,
           $name: String!
           ){
           
-          update_user_by_pk(
-            pk_columns: {id: $user_id}, 
-            _set: {role: $role) {
+            update_user_by_pk(
+              pk_columns: {id: $user_id}, 
+              _set: {role: $role}
+            ){
               id
             }
-          
+        
             update_stripe_info(
               where: {user_id: {_eq: $user_id}}, 
               _set: {
