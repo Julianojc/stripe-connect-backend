@@ -1,5 +1,5 @@
 
-const stripe = require("stripe")( process.env.NEXT_STRIPE_API_SECRET ) //STRIPE SECRET
+const stripe = require("stripe")( process.env.NEXT_STRIPE_API_SECRET )
 
 const balanceRetrieve = async (req, res) => {
   
@@ -9,10 +9,26 @@ const balanceRetrieve = async (req, res) => {
   
     if (method === "GET") {
         try{
-            const _balance = await stripe.balance.retrieve({stripeAccount: accConnectId });
+            
+            // saldo total
+            const _balance = await stripe.balance.retrieve({
+                stripeAccount: accConnectId 
+            }); 
+            
+            // lista transações de saldo
+            const _balanceTransations = await stripe.balanceTransactions.list(
+                accConnectId,
+                {
+                limit: 10,
+                //starting_after: //<Paginação
+            }); 
+            
             res.status(200).json({ 
-                balance: _balance
+                balance: _balance,
+                balanceTransations: _balanceTransations
             });
+
+
         }
         catch (error) {
             console.error('An error occurred when calling the Stripe API to retreive Balance Data', error);
