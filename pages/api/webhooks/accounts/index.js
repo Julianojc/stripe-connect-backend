@@ -41,17 +41,27 @@ export default async function handler(req, res){
         const accountUpdated = event.data.object;
    
         const _mutation = gql`
-        mutation UpdateUserData($user_id: String!, $role: user_role_enum!, $stripe_connect_id: String!, $email: String!) {
+        mutation UpdateUserData(
+          $user_id: String!, 
+          $role: user_role_enum!, 
+          $stripe_connect_id: String!, 
+          $email: String!
+          $name: String!
+          ){
           
           update_user_by_pk(
             pk_columns: {id: $user_id}, 
-            _set: {role: $role, stripe_connect_id: $stripe_connect_id}) {
+            _set: {role: $role) {
               id
             }
           
             update_stripe_info(
               where: {user_id: {_eq: $user_id}}, 
-              _set: {connect_id: $stripe_connect_id, email: $email}) {
+              _set: {
+                connect_id: $stripe_connect_id, 
+                email: $email,
+                name: $name
+              }) {
               affected_rows
             }
 
@@ -62,6 +72,7 @@ export default async function handler(req, res){
           variables:{
             user_id: accountUpdated.metadata.user_id,
             role: "CREATOR",
+            name: accountUpdated.business_profile.name,
             stripe_connect_id: accountUpdated.id,
             email: accountUpdated.email
           }
