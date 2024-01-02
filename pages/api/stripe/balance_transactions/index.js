@@ -10,15 +10,17 @@ const balanceRetrieve = async (req, res) => {
     if (method === "GET") {
         try{
             
-            // saldo total
-            const _balance = await stripe.balance.retrieve({
-                stripeAccount: accConnectId 
+            // lista histórico de transações de saldo
+            const _balanceTransations = await stripe.balanceTransactions.list(
+                accConnectId,
+                {
+                limit: 10,
+                //starting_after: //<Paginação
             }); 
-                        
+            
             res.status(200).json({ 
-                balance: _balance,
+                transations: _balanceTransations
             });
-
 
         }
         catch (error) {
